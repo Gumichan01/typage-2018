@@ -1,4 +1,12 @@
 
+(*
+  ChurchType.ml
+
+  This file defines church type system
+
+  Author : Luxon JEAN-PIERRE
+*)
+
 type chtype =
     Bool
   | Int
@@ -10,7 +18,7 @@ type chexpression =
   | Const of string
   | Pair of chexpression * chexpression
   | Apply of chexpression * chexpression
-  | Lambda of string * chtype * chexpression * chexpression
+  | Lambda of string * chtype * chexpression
   | Letin of string * chtype * chexpression * chexpression
 
 type environment = (string * chtype) list;;
@@ -30,8 +38,8 @@ let rec pretty_print_e =
                  print_string(", "); pretty_print_e b;print_string(")")
   | Apply(a,b) -> print_string("Apply "); pretty_print_e a;
                   print_string(" "); pretty_print_e b
-  | Lambda(x,t,e1,e2) -> print_string("Lambda  "); pretty_print_e e1;
-                         print_string(": "); pretty_print_t t; print_string(" "); pretty_print_e e2
+  | Lambda(x,t,e) -> print_string("Lambda  "); pretty_print_e e;
+                         print_string(": "); pretty_print_t t;
 
   | Letin(x,t,e1,e2) -> print_string("Let "); print_string x;
                         print_string(": t = "); pretty_print_e e1; print_string(" in "); pretty_print_e e2;;
@@ -48,15 +56,21 @@ let rec type_check (env: environment) =
   | Const s as cs -> tc env cs
   | Var(s)        -> List.assoc s env
 
-  | Pair(a1, a2)  ->
+  | Pair(a1, a2) ->
     let t1 = type_check env a1 in
     let t2 = type_check env a2 in Cross(t1, t2)
 
-  | Apply(m, n)   -> check_apply_type env m n
+  | Apply(m, n) -> check_apply_type env m n
 
-  | Lambda(x, t, e1, e2) | Letin(x, t, e1, e2) ->
-    match t == (type_check env e1) with
-    | false -> failwith "Lambda/LetIn type checking: invalid type"
+  | Lambda(x, t, e) ->
+    (
+      match t = (type_check env e) with
+      | false -> failwith "LetIn type checking: invalid type"
+      | true  -> t
+    )
+  | Letin(x, t, e1, e2) ->
+    match t = (type_check env e1) with
+    | false -> failwith "LetIn type checking: invalid type"
     | _ -> let nenv = (x, t)::env in (type_check nenv e2)
 
 and check_apply_type (env: environment) m n =
