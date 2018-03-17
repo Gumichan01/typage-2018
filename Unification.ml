@@ -14,13 +14,13 @@ type typeSchema =
   | Arrow of typeSchema * typeSchema
   | Cross of typeSchema * typeSchema
 
+(* @note The function fails if a variable capture happened during the alpha-conversion *)
 
-(*let rec unify (tslist : (typeSchema * typeSchema) list) : (typeSchema * typeSchema) list =
-  let aux_unify l res =
-    match l with
-    | [] -> res
-    | h::q -> print_string(" todo ..."); unify q
-  in aux_unify tslist []*)
+
+let rec unify (tslist : (typeSchema * typeSchema) list) : unit =
+  match tslist  with
+  | [] -> print_string("done") (* todo return something? *)
+  | h::q -> print_string(" todo ..."); unify q
 
 
 let delete tsl =
@@ -39,10 +39,3 @@ let swap tsl =
     | (Int, Alpha(s))::q  -> aux_swap q ((Alpha(s), Int)::res)
     | h::q -> aux_swap q (h::res)
   in aux_swap tsl []
-
-
-(*
-and operate : (typeSchema * typeSchema) -> unit =
-  function
-  | (a,a) ->
-  | _ -> expr2*)

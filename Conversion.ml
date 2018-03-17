@@ -53,11 +53,9 @@ let rec bound_variable = function
   | ChurchType.Letin(x,_, m, n)  -> (bound_variable m) @ (bound_variable n) @ [x]
 
 (*
-  todo
+  TODO
   It operates the alpha-conversion by taking a church type and a substitution list
   to apply
-
-  @note The function fails if a variable capture happened during the alpha-conversion
 *)
 let rec alpha_conv e env : chexpression =
   match e with

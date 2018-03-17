@@ -23,12 +23,14 @@ type chexpression =
 
 type environment = (string * chtype) list;;
 
+
 let rec pretty_print_t =
   function
   | Bool -> print_string("Bool")
   | Int  -> print_string("Int")
   | Cross(x,y) -> print_string("Cross("); pretty_print_t x; print_string(", "); pretty_print_t y; print_string(")")
   | Arrow(x,y) -> print_string("Apply()"); pretty_print_t x; print_string(", "); pretty_print_t y; print_string(")")
+
 
 let rec pretty_print_e =
   function
