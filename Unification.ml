@@ -17,10 +17,14 @@ type typeSchema =
 (* @note The function fails if a variable capture happened during the alpha-conversion *)
 
 
-let rec unify (tslist : (typeSchema * typeSchema) list) : unit =
+let rec unify_all (tslist : (typeSchema * typeSchema) list) : unit =
   match tslist  with
   | [] -> print_string("done") (* todo return something? *)
-  | h::q -> print_string(" todo ..."); unify q
+  | h::q -> print_string(" todo ..."); unify_all ((unify)::q)
+
+and unify =
+  function
+  | _ -> failwith "TODO unify"
 
 
 let delete tsl =
