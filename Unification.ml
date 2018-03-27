@@ -7,24 +7,23 @@
   Author : Luxon JEAN-PIERRE
 *)
 
-type typeSchema =
-   Alpha of string
-  | Bool
-  | Int
-  | Arrow of typeSchema * typeSchema
-  | Cross of typeSchema * typeSchema
+type itype =
+  | IBool
+  | IInt
+  | ICross of itype * itype
+  | IArrow of itype * itype
+  (* temporay type I am using *)
+  | IVar of string
 
 (* @note The function fails if a variable capture happened during the alpha-conversion *)
 
 
-let rec unify_all (tslist : (typeSchema * typeSchema) list) : unit =
+let rec unify_all (tslist : (itype * itype) list) : unit =
   match tslist  with
   | [] -> print_string("done") (* todo return something? *)
   | h::q -> print_string(" todo ..."); unify_all ((unify)::q)
 
-and unify =
-  function
-  | _ -> failwith "TODO unify"
+and unify = failwith "TODO unify"
 
 
 let delete tsl =
@@ -39,7 +38,7 @@ let swap tsl =
   let rec aux_swap l res =
     match l with
     | [] -> res
-    | (Bool, Alpha(s))::q -> aux_swap q ((Alpha(s), Bool)::res)
-    | (Int, Alpha(s))::q  -> aux_swap q ((Alpha(s), Int)::res)
+    | (IBool, IVar(s))::q -> aux_swap q ((IVar(s), IBool)::res)
+    | (IInt, IVar(s))::q  -> aux_swap q ((IVar(s), IInt)::res)
     | h::q -> aux_swap q (h::res)
   in aux_swap tsl []

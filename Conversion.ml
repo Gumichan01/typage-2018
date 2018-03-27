@@ -7,6 +7,9 @@
   Author : Luxon JEAN-PIERRE
 *)
 
+(** TODO create a file misc(*elleanous*).ml and free_variable, bound_variable,
+    and alpha-conversion in there -> necessary? *)
+
 open ChurchType;;
 
 (*
