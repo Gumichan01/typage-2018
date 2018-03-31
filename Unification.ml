@@ -17,6 +17,9 @@ type typeSchema =
 (* @note The function fails if a variable capture happened during the alpha-conversion *)
 
 
+
+
+(*
 let rec unify_all (tslist : (typeSchema * typeSchema) list) : unit =
   match tslist  with
   | [] -> print_string("done") (* todo return something? *)
@@ -42,4 +45,4 @@ let swap tsl =
     | (Bool, Alpha(s))::q -> aux_swap q ((Alpha(s), Bool)::res)
     | (Int, Alpha(s))::q  -> aux_swap q ((Alpha(s), Int)::res)
     | h::q -> aux_swap q (h::res)
-  in aux_swap tsl []
+  in aux_swap tsl []*)

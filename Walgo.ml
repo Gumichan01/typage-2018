@@ -68,6 +68,7 @@ let rec infer (delta : environment) (e : expression) =
     (ICross(b, c), []) (* change it *)
 
   | Apply(_,_) -> failwith "TODO W-algorithm: Apply"
+
   | Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  (V.create ()) in
     let b, rho = infer ((x, fresh_alpha)::delta) n in
