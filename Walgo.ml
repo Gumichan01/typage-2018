@@ -7,18 +7,8 @@
   Author : Luxon JEAN-PIERRE
 *)
 
-
-(* Expression to infer the type of *)
-type expression =
-    Var of string
-  | Const of string
-  | Pair of expression * expression
-  | Apply of expression * expression
-  | Lambda of string * expression
-  | Letin of string * expression * expression
-
-
 module T = IType
+module E = Expression
 
 module V = struct
   type t = string
@@ -31,6 +21,8 @@ let math_ops = ["+"; "-"; "*"; "/"]
 let bool_ops = ["&&"; "||"]
 let math_basictype = T.IArrow(T.ICross(T.IInt, T.IInt), T.IInt)
 let bool_basictype = T.IArrow(T.ICross(T.IBool, T.IBool), T.IBool)
+
+type expression = E.t
 
 (*
   There is a function that does the job in Ocaml 4.06, but I don't have this version.
@@ -54,20 +46,20 @@ let rec infer_program : expression list -> T.itype =
 
 let rec infer (delta : environment) (e : expression) =
   match e with
-  | Var(_) | Const(_) as cv -> (inst delta cv, [])
-  | Pair(n, l) ->
+  | E.Var(_) | E.Const(_) as cv -> (inst delta cv, [])
+  | E.Pair(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer (sigma delta rhob) l in
     (T.ICross(b, c), []) (* change it *)
 
-  | Apply(_,_) -> failwith "TODO W-algorithm: Apply"
+  | E.Apply(_,_) -> failwith "TODO W-algorithm: Apply"
 
-  | Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
+  | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  (V.create ()) in
     let b, rho = infer ((x, fresh_alpha)::delta) n in
     (T.IArrow(fresh_alpha, b), []) (* change it *)
 
-  | Letin(_,_,_) -> failwith "TODO W-algorithm: Letin"
+  | E.Letin(_,_,_) -> failwith "TODO W-algorithm: Letin"
 
   (*
     I want to make the following calculation
@@ -93,8 +85,8 @@ let rec infer (delta : environment) (e : expression) =
 
   (* Get the type instance of the variable or the constant value *)
   and inst env = function
-  | Var(s)   -> List.assoc s env
-  | Const(x) -> inst_constv x
+  | E.Var(s)   -> List.assoc s env
+  | E.Const(x) -> inst_constv x
   | _-> assert(false) (* type instance *)
 
   (* Get the type instance of constant value *)
