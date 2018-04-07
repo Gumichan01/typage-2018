@@ -7,6 +7,7 @@ exception TypeMismatch
 exception OccursCheck
 exception Conflict
 val delete : ('a * 'a) list -> ('a * 'a) list
+val is_variable : T.itype -> bool
 val vars : 'a -> T.itype -> bool
 val varsl : 'a -> (T.itype * T.itype) list -> bool
 val is_resolved : system -> bool
@@ -14,6 +15,7 @@ val unify_aux : system -> unifier
 val process : system -> system
 val erase : substitution list -> substitution list
 val replace : substitution list -> substitution list
+val replace_aux : substitution list -> substitution list -> substitution list
 val swap : substitution list -> substitution list
 val decompose : system -> substitution list
 val check : substitution -> substitution

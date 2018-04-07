@@ -47,6 +47,11 @@ let swap tsl =
     | h::q -> aux_swap q (h::res)
   in aux_swap tsl []
 
+
+let is_variable = function
+  | T.IVar(_) -> true
+  | _ -> false
+
 (*
     Checks if a variable belongs to the variables of a term
 *)
@@ -85,7 +90,15 @@ and process l = List.map check ( l |> decompose |> swap |> replace |> erase )
 
 and erase l = l(*failwith "todo erase"*)
 
-and replace l = l(*failwith "todo replace"*)
+and replace l = replace_aux l l
+
+and replace_aux g = function
+  | [] -> []
+  (*| (a, t)::q when (is_variable a) ->
+    (
+      if not(vars a t) && varsl a g
+    )*)
+  | h::q -> h :: (replace q)
 
 and swap l = l(*failwith "todo swap"*)
 
