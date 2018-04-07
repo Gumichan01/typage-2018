@@ -36,15 +36,6 @@ let delete tsl =
     | h::q -> aux_delete q (h::res)
   in aux_delete tsl []
 
-let swap tsl =
-  let rec aux_swap l res =
-    match l with
-    | [] -> res
-    | (T.IBool, T.IVar(s))::q -> aux_swap q ((T.IVar(s), T.IBool)::res)
-    | (T.IInt, T.IVar(s))::q  -> aux_swap q ((T.IVar(s), T.IInt)::res)
-    | h::q -> aux_swap q (h::res)
-  in aux_swap tsl []
-
 
 let is_variable = function
   | T.IVar(_) -> true
@@ -124,7 +115,14 @@ and eliminate_aux g = function
     end
   | h::q -> h :: (eliminate_aux g q)
 
-and swap l = l(*failwith "todo swap"*)
+and swap l =
+  let rec aux_swap sl res =
+    match sl with
+    | [] -> res
+    | ( T.IVar(s), x )::q
+    | ( x, T.IVar(s) )::q -> aux_swap q ( (T.IVar(s), x)::res )
+    | h::q -> aux_swap q (h::res)
+  in aux_swap l []
 
 and decompose = function
   | [] -> []    (* yes, it is possible *)

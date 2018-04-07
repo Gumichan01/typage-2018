@@ -20,8 +20,8 @@ val process : system -> system
 val erase : substitution list -> substitution list
 val eliminate : system -> substitution list
 val eliminate_aux : system -> system -> substitution list
-val swap : system -> system
-val decompose : system -> system
+val swap : substitution list -> system
+val decompose : system -> substitution list
 val check : substitution -> substitution
 val occurs_check : substitution -> bool
 val conflict : substitution -> bool
