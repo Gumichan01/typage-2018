@@ -11,13 +11,13 @@ val delete : ('a * 'a) list -> ('a * 'a) list
 val is_resolved : system -> bool
 val unify_aux : system -> unifier
 val process : system -> system
-val erase : system -> system
-val replace : system -> system
-val swap : system -> system
-val decompose : system -> system
-val check : T.itype * T.itype -> T.itype * T.itype
-val occurs_check : T.itype * T.itype -> bool
-val conflict : T.itype * T.itype -> bool
+val erase : substitution list -> substitution list
+val replace : substitution list -> substitution list
+val swap : substitution list -> substitution list
+val decompose : system -> substitution list
+val check : substitution -> substitution
+val occurs_check : substitution -> bool
+val conflict : substitution -> bool
 val unify : system -> unifier
 val to_string : T.itype -> string
 val printI : T.itype * T.itype -> unit

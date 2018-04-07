@@ -62,7 +62,7 @@ let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
     else failwith "unify: cannot infer the type of this expression"
    )
 
-and process l = compose erase replace (compose swap decompose l)
+and process l = List.map check (compose erase replace (compose swap decompose l))
 
 and erase l = l(*failwith "todo erase"*)
 
@@ -77,7 +77,8 @@ and decompose = function
   | h::q -> h :: (decompose q)
 
 (*
-
+    Check if a substitution is not ill-formed
+    -> occurs check and conflict
 *)
 and check p =
   if occurs_check p then
@@ -86,6 +87,7 @@ and check p =
     if conflict p then
       raise Conflict
     else p
+
 
 and occurs_check = function
   | (T.IVar(s), T.ICross(_, _))
