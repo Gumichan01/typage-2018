@@ -1,6 +1,5 @@
-
 (*
-  IType.ml
+  Expression.mli
 
   Expression to infer the type of
 
