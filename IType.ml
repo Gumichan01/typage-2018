@@ -18,7 +18,7 @@ type itype =
 
 module TVar = struct
   type t = string
-  let compare v1 v2 = Pervasives.compare v1 v2
-  let equal v1 v2 = v1 = v2
+  let compare (v1 : t) (v2 : t) = Pervasives.compare v1 v2
+  let equal (v1 : t) (v2 : t) = v1 = v2
   let create = let r = ref 0 in fun () -> incr r; IVar("α" ^ string_of_int(!r))
 end

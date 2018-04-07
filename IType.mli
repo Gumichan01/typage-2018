@@ -7,7 +7,7 @@ type itype =
 module TVar :
   sig
     type t = string
-    val compare : 'a -> 'a -> int
-    val equal : 'a -> 'a -> bool
+    val compare : t -> t -> int
+    val equal : t -> t -> bool
     val create : unit -> itype
   end
