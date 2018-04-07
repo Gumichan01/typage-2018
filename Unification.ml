@@ -62,7 +62,7 @@ let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
     else failwith "unify: cannot infer the type of this expression"
    )
 
-and process l = List.map check (compose erase replace (compose swap decompose l))
+and process l = List.map check ( l |> decompose |> swap |> replace |> erase )
 
 and erase l = l(*failwith "todo erase"*)
 
