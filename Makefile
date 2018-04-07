@@ -35,13 +35,13 @@ Conversion.cmo: Conversion.ml Conversion.mli Conversion.cmi IType.cmo
 Unification.mli: Unification.ml
 	ocamlc -i $< > $@
 
-Unification.cmi: Unification.mli
+Unification.cmi: Unification.mli IType.cmo
 	ocamlc $(CFLAGS) $<
 
 Unification.cmo: Unification.ml Unification.mli Unification.cmi IType.cmo
 	ocamlc $(CFLAGS) $<
 
-Walgo.mli: Walgo.ml
+Walgo.mli: Walgo.ml IType.cmo
 	ocamlc -i $< > $@
 
 Walgo.cmi: Walgo.mli
