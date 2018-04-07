@@ -25,6 +25,8 @@ type unifier = substitution list
 type system = unifier
 
 
+let compose f g x = f (g x)
+
 let delete tsl =
   let rec aux_delete l res =
     match l with
@@ -43,7 +45,27 @@ let swap tsl =
   in aux_swap tsl []
 
 
-let rec unify_aux (slist : system) : unifier = failwith "TODO unify"
+let is_resolved : system -> bool = (fun x -> true)
+
+let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
+  match slist with
+  | [] -> []
+  | _ ->
+   (
+    let res = process slist in
+    if is_resolved res then res
+    else failwith "unify: cannot infer the type of this expression"
+   )
+
+and process l = compose erase replace (compose swap decompose l)
+
+and erase l = failwith "todo erase"
+
+and replace l = failwith "todo replace"
+
+and swap l = failwith "todo swap"
+
+and decompose l = failwith "todo decomp"
 
 let unify (slist : system) : unifier = (*failwith "TODO unify"*)
   match slist with
