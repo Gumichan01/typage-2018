@@ -11,13 +11,18 @@ module T = IType
 
 (* @note The function fails if a variable capture happened during the alpha-conversion *)
 
-let rec unify_all (tslist : (T.itype * T.itype) list) : unit =
+(*
+  technically → (IVar, T.itype {IVar / real type})
+*)
+type substitution = (T.itype * T.itype)
 
-  match tslist  with
-  | [] -> print_string("done") (* todo return something? *)
-  | h::q -> print_string(" todo ..."); unify_all ((unify)::q)
+(*The most greatest unifier *)
+type unifier = substitution list
 
-and unify = failwith "TODO unify"
+(* System to unify *)
+type system = unifier
+
+let rec unify (tslist : system) : unifier = failwith "TODO unify"
 
 
 let delete tsl =
