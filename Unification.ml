@@ -104,88 +104,89 @@ let distinct (l : system) =
 let is_resolved : system -> bool = (*(fun x -> true)*)
   (fun l -> distinct l)
 
+
+(** The function that makes the unification *)
+
 let unify (slist : system) : unifier =
-
-let rec unify_aux (sys : system) : unifier =
-  begin
-    let nsys = process sys in
-    if is_resolved nsys then
-      nsys
-    else
-      unify_aux nsys
-  end
-
-and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
-
-and erase l =
-  let rec aux_erase sl res =
-    match sl with
-    | [] -> res
-    | (s1, s2)::q when s1 = s2 -> aux_erase q (res)
-    | h::q -> aux_erase q (h::res)
-  in aux_erase l []
-
-and eliminate l = eliminate_aux l l
-
-and eliminate_aux g = function
-  | [] -> []
-  | (a, t)::q when (is_variable a) ->
+  let rec unify_aux (sys : system) : unifier =
     begin
-      let s = (a, t) in
-      let ng = system_without_subs s g in (* E { a ← t } *)
-      if not(vars a t) && (varsl a ng) then
-        begin
-          eliminate ( s :: (substitute_all s ng) ) (* E' U { a = t } *)
-        end
+      let nsys = process sys in
+      if is_resolved nsys then
+        nsys
       else
-        (a, t) :: (eliminate_aux g q)
+        unify_aux nsys
     end
-  | h::q -> h :: (eliminate_aux g q)
 
-and swap l =
-  let rec aux_swap sl res =
-    match sl with
-    | [] -> res
-    | ( T.IVar(s), x )::q
-    | ( x, T.IVar(s) )::q -> aux_swap q ( (T.IVar(s), x)::res )
-    | h::q -> aux_swap q (h::res)
-  in aux_swap l []
+  and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
-and decompose = function
-  | [] -> []    (* yes, it is possible *)
-  | (T.ICross(u, w), T.ICross(v, x))::q
-  | (T.IArrow(u, w), T.IArrow(v, x))::q -> (u, v) :: (w, x) :: (decompose q)
-  | h::q -> h :: (decompose q)
+  and erase l =
+    let rec aux_erase sl res =
+      match sl with
+      | [] -> res
+      | (s1, s2)::q when s1 = s2 -> aux_erase q (res)
+      | h::q -> aux_erase q (h::res)
+    in aux_erase l []
 
-(*
-    Check if a substitution is not ill-formed
-    -> occurs check and conflict
-*)
-and check p =
-  if occurs_check p then
-    raise OccursCheck
-  else
-    if conflict p then
-      raise Conflict
-    else p
+  and eliminate l = eliminate_aux l l
 
+  and eliminate_aux g = function
+    | [] -> []
+    | (a, t)::q when (is_variable a) ->
+      begin
+        let s = (a, t) in
+        let ng = system_without_subs s g in (* E { a ← t } *)
+        if not(vars a t) && (varsl a ng) then
+          begin
+            eliminate ( s :: (substitute_all s ng) ) (* E' U { a = t } *)
+          end
+        else
+          (a, t) :: (eliminate_aux g q)
+      end
+    | h::q -> h :: (eliminate_aux g q)
 
-and occurs_check = function
-  | (T.IVar(s), T.ICross(_, _))
-  | (T.IVar(s), T.IArrow(_, _))-> true (* TODO: check that *)
-  | _ -> false
+  and swap l =
+    let rec aux_swap sl res =
+      match sl with
+      | [] -> res
+      | ( T.IVar(s), x )::q
+      | ( x, T.IVar(s) )::q -> aux_swap q ( (T.IVar(s), x)::res )
+      | h::q -> aux_swap q (h::res)
+    in aux_swap l []
 
-(*
-    f(s₀, ..., sₖ) = g(t₀, ..., tₙ)     f != g or k != n
-*)
-and conflict = function
-  | (T.IInt, T.ICross(_, _)) | (T.ICross(_, _), T.IInt)
-  | (T.IInt, T.IArrow(_, _)) | (T.IArrow(_, _), T.IInt)
-  | (T.IBool, T.ICross(_, _)) | (T.ICross(_, _), T.IBool)
-  | (T.IBool, T.IArrow(_, _)) | (T.IArrow(_, _), T.IBool) -> true
-  | _ -> false
+  and decompose = function
+    | [] -> []    (* yes, it is possible *)
+    | (T.ICross(u, w), T.ICross(v, x))::q
+    | (T.IArrow(u, w), T.IArrow(v, x))::q -> (u, v) :: (w, x) :: (decompose q)
+    | h::q -> h :: (decompose q)
 
-in unify_aux slist
+  (*
+      Check if a substitution is not ill-formed
+      -> occurs check and conflict
+  *)
+  and check p =
+    if occurs_check p then
+      raise OccursCheck
+    else
+      if conflict p then
+        raise Conflict
+      else p
+
+  and occurs_check = function
+    | (T.IVar(s), T.ICross(_, _))
+    | (T.IVar(s), T.IArrow(_, _))-> true (* TODO: check that *)
+    | _ -> false
+
+  (*
+      f(s₀, ..., sₖ) = g(t₀, ..., tₙ)     f != g or k != n
+  *)
+  and conflict = function
+    | (T.IInt, T.ICross(_, _)) | (T.ICross(_, _), T.IInt)
+    | (T.IInt, T.IArrow(_, _)) | (T.IArrow(_, _), T.IInt)
+    | (T.IBool, T.ICross(_, _)) | (T.ICross(_, _), T.IBool)
+    | (T.IBool, T.IArrow(_, _)) | (T.IArrow(_, _), T.IBool) -> true
+    | _ -> false
+
+  in unify_aux slist
 
 
 (* Just to test *)
