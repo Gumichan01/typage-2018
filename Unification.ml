@@ -16,7 +16,7 @@ module T = IType
   Sub → substitution
   Bottom → fail/occur-check
 *)
-type substitution = Sub of T.itype * T.itype | Bottom
+type substitution = T.itype * T.itype
 
 (*The most greatest unifier *)
 type unifier = substitution list
@@ -59,15 +59,35 @@ let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
 
 and process l = compose erase replace (compose swap decompose l)
 
-and erase l = failwith "todo erase"
+and erase l = l(*failwith "todo erase"*)
 
-and replace l = failwith "todo replace"
+and replace l = l(*failwith "todo replace"*)
 
-and swap l = failwith "todo swap"
+and swap l = l(*failwith "todo swap"*)
 
-and decompose l = failwith "todo decomp"
+and decompose l = l(*failwith "todo decomp"*)
 
 let unify (slist : system) : unifier = (*failwith "TODO unify"*)
   match slist with
   | [] -> []
   | _ -> unify_aux slist
+
+
+(* Just to test *)
+
+let rec to_string = function
+  | T.IInt -> "int"
+  | T.IBool -> "bool"
+  | T.ICross(x, y) -> (to_string x) ^ " × " ^ (to_string y)
+  | T.IArrow(x, y) -> "(" ^ (to_string x) ^ ") → (" ^ (to_string y) ^ ")"
+  | T.IVar(s) -> s
+
+
+let printI (a, b) =
+  print_string((to_string a) ^ "/" ^ (to_string b));
+  print_endline("");;
+
+
+let s = [ (T.IVar("α1"), T.IInt) ; (T.IInt, T.IInt) ; (T.IBool, T.IVar("α2")) ] in
+let res = unify s in
+List.map printI res;
