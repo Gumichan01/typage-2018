@@ -47,6 +47,27 @@ let swap tsl =
     | h::q -> aux_swap q (h::res)
   in aux_swap tsl []
 
+(*
+    Checks if a variable belongs to the variables of a term
+*)
+let rec vars alpha = function
+  | T.IVar(alpha) -> true
+  | T.IInt | T.IBool -> false
+  | T.ICross(m, n) -> (vars alpha m) || (vars alpha n)
+  | T.IArrow(a, b) -> (vars alpha a) || (vars alpha b)
+
+(*
+    Checks if a variable is in a system
+*)
+let rec varsl alpha = function
+  | []   -> false
+  | (a, b)::q ->
+    (match (vars alpha a), (vars alpha b) with
+      | true, _
+      | _ , true  -> true
+      | _ -> varsl alpha q
+    )
+
 
 let is_resolved : system -> bool = (fun x -> true)
 
@@ -128,6 +149,7 @@ let s =
 [ (T.IVar("α1"), T.IInt);
   (T.IInt, T.IInt);
   (T.IBool, T.IVar("α2"));
+  (T.IVar("α1"), T.IVar("α4"));
   (T.ICross(T.IVar("α3"), T.IVar("α4")), T.ICross(T.IBool, T.IInt)) ] in
 let res = unify s in
 List.map printI res;
