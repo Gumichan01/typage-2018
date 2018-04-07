@@ -82,6 +82,11 @@ let substitute (s: substitution) (t1, t2) = (sub s t1, sub s t2)
 
 let substitute_all (s: substitution) (l : system) = (List.map (substitute s) l : system)
 
+let rec system_without_subs (s: substitution) : system -> system = function
+  | [] -> []
+  | h::q when h = s -> q
+  | h::q -> h :: (system_without_subs s q)
+
 
 let is_resolved : system -> bool = (fun x -> true)
 
@@ -104,12 +109,16 @@ and eliminate l = l (*eliminate_aux l l*)
 and eliminate_aux g = function
   | [] -> []
   | (a, t)::q when (is_variable a) ->
-    (
+    begin
       if not(vars a t) && (varsl a g) then
-        eliminate (substitute_all (a,t) g) (* TODO: g without (a, t) *)
+        begin
+          let s = (a, t) in
+          let ng = system_without_subs s g in (* E { a ← t } *)
+           eliminate ( s :: (substitute_all s ng) ) (* E' U { a = t } *)
+        end
       else
         (a, t) :: (eliminate_aux g q)
-    )
+    end
   | h::q -> h :: (eliminate_aux g q)
 
 and swap l = l(*failwith "todo swap"*)
