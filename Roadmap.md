@@ -10,8 +10,8 @@
 
 Pour le moment mon objectif est de faire tout ça sur des type non-récursifs:
 
-- Définir un type anonyme *alpha* (α)
-- ```itype``` sera le type inféré. Il contiendra un *α*
+- Définir un type anonyme *alpha* (α) | OK
+- ```itype``` sera le type inféré. Il contiendra un *α* | OK
 - Définir proprement un unificateur
 - Implémenter la composition des unificateurs
 - Implémenter l'unification d'un système E (qui devra être bien défini)
