@@ -24,6 +24,11 @@ type unifier = substitution list
 (* System to unify *)
 type system = unifier
 
+exception RecursiveType
+exception TypeMismatch
+exception OccursCheck
+exception Conflict
+
 
 let compose f g x = f (g x)
 
@@ -66,10 +71,37 @@ and replace l = l(*failwith "todo replace"*)
 and swap l = l(*failwith "todo swap"*)
 
 and decompose = function
-  | [] -> []
+  | [] -> []    (* yes, it is possible *)
   | (T.ICross(u, w), T.ICross(v, x))::q
   | (T.IArrow(u, w), T.IArrow(v, x))::q -> (u, v) :: (w, x) :: (decompose q)
   | h::q -> h :: (decompose q)
+
+(*
+
+*)
+and check p =
+  if occurs_check p then
+    raise OccursCheck
+  else
+    if conflict p then
+      raise Conflict
+    else p
+
+and occurs_check = function
+  | (T.IVar(s), T.ICross(_, _))
+  | (T.IVar(s), T.IArrow(_, _))-> true (* TODO: check that *)
+  | _ -> false
+
+(*
+    f(s₀, ..., sₖ) = g(t₀, ..., tₙ)     f != g or k != n
+*)
+and conflict = function
+  | (T.IInt, T.ICross(_, _)) | (T.ICross(_, _), T.IInt)
+  | (T.IInt, T.IArrow(_, _)) | (T.IArrow(_, _), T.IInt)
+  | (T.IBool, T.ICross(_, _)) | (T.ICross(_, _), T.IBool)
+  | (T.IBool, T.IArrow(_, _)) | (T.IArrow(_, _), T.IBool) -> true
+  | _ -> false
+
 
 let unify (slist : system) : unifier = (*failwith "TODO unify"*)
   match slist with
