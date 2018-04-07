@@ -65,11 +65,12 @@ let rec vars alpha = function
 let rec varsl alpha = function
   | []   -> false
   | (a, b)::q ->
-    (match (vars alpha a), (vars alpha b) with
+    begin
+      match (vars alpha a), (vars alpha b) with
       | true, _
       | _ , true  -> true
       | _ -> varsl alpha q
-    )
+    end
 
 
 let rec sub ((a, t) : substitution) = function
@@ -94,11 +95,13 @@ let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
   match slist with
   | [] -> []
   | _ ->
-   (
-    let res = process slist in
-    if is_resolved res then res
-    else failwith "unify: cannot infer the type of this expression"
-   )
+   begin
+     let res = process slist in
+     if is_resolved res then
+       res
+     else
+       failwith "unify: cannot infer the type of this expression"
+   end
 
 and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
