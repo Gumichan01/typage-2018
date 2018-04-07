@@ -65,7 +65,11 @@ and replace l = l(*failwith "todo replace"*)
 
 and swap l = l(*failwith "todo swap"*)
 
-and decompose l = l(*failwith "todo decomp"*)
+and decompose = function
+  | [] -> []
+  | (T.ICross(u, w), T.ICross(v, x))::q
+  | (T.IArrow(u, w), T.IArrow(v, x))::q -> (u, v) :: (w, x) :: (decompose q)
+  | h::q -> h :: (decompose q)
 
 let unify (slist : system) : unifier = (*failwith "TODO unify"*)
   match slist with
@@ -88,6 +92,10 @@ let printI (a, b) =
   print_endline("");;
 
 
-let s = [ (T.IVar("α1"), T.IInt) ; (T.IInt, T.IInt) ; (T.IBool, T.IVar("α2")) ] in
+let s =
+[ (T.IVar("α1"), T.IInt);
+  (T.IInt, T.IInt);
+  (T.IBool, T.IVar("α2"));
+  (T.ICross(T.IVar("α3"), T.IVar("α4")), T.ICross(T.IBool, T.IInt)) ] in
 let res = unify s in
 List.map printI res;
