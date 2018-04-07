@@ -23,6 +23,12 @@ IType.cmi: IType.mli
 IType.cmo: IType.ml IType.mli IType.cmi
 	ocamlc $(CFLAGS) $<
 
+Expression.cmi: Expression.mli
+	ocamlc $(CFLAGS) $<
+
+Expression.cmo: Expression.mli Expression.cmi
+	ocamlc $(CFLAGS) $<
+
 Conversion.mli: Conversion.ml
 	ocamlc -i $< > $@
 
@@ -41,13 +47,13 @@ Unification.cmi: Unification.mli IType.cmo
 Unification.cmo: Unification.ml Unification.mli Unification.cmi IType.cmo
 	ocamlc $(CFLAGS) $<
 
-Walgo.mli: Walgo.ml IType.cmo
+Walgo.mli: Walgo.ml Expression.cmo IType.cmo
 	ocamlc -i $< > $@
 
 Walgo.cmi: Walgo.mli
 	ocamlc $(CFLAGS) $<
 
-Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo IType.cmo
+Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo Expression.cmo IType.cmo
 	ocamlc $(CFLAGS) $<
 
 clean:
