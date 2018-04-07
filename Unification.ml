@@ -13,8 +13,6 @@ module T = IType
 
 (*
   technically → (IVar, T.itype {IVar / real type})
-  Sub → substitution
-  Bottom → fail/occur-check
 *)
 type substitution = T.itype * T.itype
 
@@ -74,15 +72,15 @@ let rec varsl alpha = function
     )
 
 
-let rec sub (a, t) = function
+let rec sub ((a, t) : substitution) = function
   | x when x = a   -> t
   | T.ICross(m, n)  -> T.ICross( (sub (a,t) m), (sub (a,t) n) )
   | T.IArrow(m, n)  -> T.IArrow( (sub (a,t) m), (sub (a,t) n) )
   | _ as i -> i
 
-let substitute s (t1, t2) = (sub s t1, sub s t2)
+let substitute (s: substitution) (t1, t2) = (sub s t1, sub s t2)
 
-let substitute_all s l = List.map (substitute s) l
+let substitute_all (s: substitution) (l : system) = (List.map (substitute s) l : system)
 
 
 let is_resolved : system -> bool = (fun x -> true)
@@ -151,7 +149,7 @@ and conflict = function
   | _ -> false
 
 
-let unify (slist : system) : unifier = (*failwith "TODO unify"*)
+let unify (slist : system) : unifier =
   match slist with
   | [] -> []
   | _ -> unify_aux slist
