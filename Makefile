@@ -29,13 +29,13 @@ Expression.cmi: Expression.mli
 Expression.cmo: Expression.mli Expression.cmi
 	ocamlc $(CFLAGS) $<
 
-Conversion.mli: Conversion.ml
+Variable.mli: Variable.ml
 	ocamlc -i $< > $@
 
-Conversion.cmi: Conversion.mli
+Variable.cmi: Variable.mli
 	ocamlc $(CFLAGS) $<
 
-Conversion.cmo: Conversion.ml Conversion.mli Conversion.cmi IType.cmo
+Variable.cmo: Variable.ml Variable.mli Variable.cmi IType.cmo
 	ocamlc $(CFLAGS) $<
 
 Unification.mli: Unification.ml
