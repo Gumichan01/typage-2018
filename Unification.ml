@@ -107,16 +107,16 @@ and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
 and erase l = l(*failwith "todo erase"*)
 
-and eliminate l = l (*eliminate_aux l l*)
+and eliminate l = eliminate_aux l l
 
 and eliminate_aux g = function
   | [] -> []
   | (a, t)::q when (is_variable a) ->
     begin
-      if not(vars a t) && (varsl a g) then
+      let s = (a, t) in
+      let ng = system_without_subs s g in (* E { a ← t } *)
+      if not(vars a t) && (varsl a ng) then
         begin
-          let s = (a, t) in
-          let ng = system_without_subs s g in (* E { a ← t } *)
            eliminate ( s :: (substitute_all s ng) ) (* E' U { a = t } *)
         end
       else
