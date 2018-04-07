@@ -1,8 +1,6 @@
 
 (*
-  Conversion.ml
-
-  This file handles alpha-conversion
+  Variable.ml
 
   Author : Luxon JEAN-PIERRE
 *)
@@ -10,14 +8,11 @@
 (** TODO create a file misc(*elleanous*).ml and free_variable, bound_variable,
     and alpha-conversion in there -> necessary? *)
 
-open ChurchType;;
-
 (*
   A substitution is just a pair <old_name, new_name> that represents {x / y}
   *)
-type substitution = string * string;;
 
-type subList = substitution list;;
+module E = Expression
 
 (* miscelleanous function *)
 let assoc_if a l =
@@ -31,36 +26,36 @@ let assoc_if a l =
 *)
 let free_variable chexpr =
   let rec aux_fv bvl = function
-  | ChurchType.Var(s) ->
+  | E.Var(s) ->
     (
         match (List.mem s bvl) with
         | true  -> []
         | false -> [s]
     )
-  | ChurchType.Const(_) -> []
-  | ChurchType.Pair(m, n)  -> (aux_fv bvl m) @ (aux_fv bvl n)
-  | ChurchType.Apply(m, n) -> (aux_fv bvl m) @ (aux_fv bvl n)
-  | ChurchType.Lambda(x,_, m) -> (aux_fv (x::bvl) m)
-  | ChurchType.Letin(x,_, m, n)  -> (aux_fv (x::bvl) m) @ (aux_fv (x::bvl) n)
+  | E.Const(_) -> []
+  | E.Pair(m, n)  -> (aux_fv bvl m) @ (aux_fv bvl n)
+  | E.Apply(m, n) -> (aux_fv bvl m) @ (aux_fv bvl n)
+  | E.Lambda(x,_, m) -> (aux_fv (x::bvl) m)
+  | E.Letin(x,_, m, n)  -> (aux_fv (x::bvl) m) @ (aux_fv (x::bvl) n)
   in aux_fv [] chexpr
 
 (*
   Generate the list of bound variables
 *)
 let rec bound_variable = function
-  | ChurchType.Var(_)
-  | ChurchType.Const(_) -> []
-  | ChurchType.Pair(m, n)
-  | ChurchType.Apply(m, n) -> (bound_variable m) @ (bound_variable n)
-  | ChurchType.Lambda(x,_, m) -> (bound_variable m) @ [x] (* @ (bound_variable n) *)
-  | ChurchType.Letin(x,_, m, n)  -> (bound_variable m) @ (bound_variable n) @ [x]
+  | E.Var(_)
+  | E.Const(_) -> []
+  | E.Pair(m, n)
+  | E.Apply(m, n) -> (bound_variable m) @ (bound_variable n)
+  | E.Lambda(x,_, m) -> (bound_variable m) @ [x] (* @ (bound_variable n) *)
+  | E.Letin(x,_, m, n)  -> (bound_variable m) @ (bound_variable n) @ [x]
 
 (*
   TODO
   It operates the alpha-conversion by taking a church type and a substitution list
   to apply
 *)
-let rec alpha_conv e env : chexpression =
+(*let rec alpha_conv e env : chexpression =
   match e with
   | Var(s) -> Var(subs_var s env)
 
@@ -74,7 +69,7 @@ let rec alpha_conv e env : chexpression =
     match assoc_if s env with
     | None      -> s
     | Some(sub) -> sub
-;;
+;;*)
 
 
 let p0 = Pair( Var("y"), Var("x") );;
