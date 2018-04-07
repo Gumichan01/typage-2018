@@ -108,7 +108,7 @@ and eliminate_aux g = function
       let ng = system_without_subs s g in (* E { a ← t } *)
       if not(vars a t) && (varsl a ng) then
         begin
-           eliminate ( s :: (substitute_all s ng) ) (* E' U { a = t } *)
+          eliminate ( s :: (substitute_all s ng) ) (* E' U { a = t } *)
         end
       else
         (a, t) :: (eliminate_aux g q)
