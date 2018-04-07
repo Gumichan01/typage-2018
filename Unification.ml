@@ -7,17 +7,11 @@
   Author : Luxon JEAN-PIERRE
 *)
 
-type itype =
-  | IBool
-  | IInt
-  | ICross of itype * itype
-  | IArrow of itype * itype
-  (* temporay type I am using *)
-  | IVar of string
+module T = IType
 
 (* @note The function fails if a variable capture happened during the alpha-conversion *)
 
-let rec unify_all (tslist : (itype * itype) list) : unit =
+let rec unify_all (tslist : (T.itype * T.itype) list) : unit =
 
   match tslist  with
   | [] -> print_string("done") (* todo return something? *)
@@ -38,7 +32,7 @@ let swap tsl =
   let rec aux_swap l res =
     match l with
     | [] -> res
-    | (IBool, IVar(s))::q -> aux_swap q ((IVar(s), IBool)::res)
-    | (IInt, IVar(s))::q  -> aux_swap q ((IVar(s), IInt)::res)
+    | (T.IBool, T.IVar(s))::q -> aux_swap q ((T.IVar(s), T.IBool)::res)
+    | (T.IInt, T.IVar(s))::q  -> aux_swap q ((T.IVar(s), T.IInt)::res)
     | h::q -> aux_swap q (h::res)
   in aux_swap tsl []

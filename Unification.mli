@@ -1,10 +1,5 @@
-type itype =
-    IBool
-  | IInt
-  | ICross of itype * itype
-  | IArrow of itype * itype
-  | IVar of string
-val unify_all : (itype * itype) list -> unit
-val unify : itype * itype
+module T = IType
+val unify_all : (T.itype * T.itype) list -> unit
+val unify : T.itype * T.itype
 val delete : ('a * 'a) list -> ('a * 'a) list
-val swap : (itype * itype) list -> (itype * itype) list
+val swap : (T.itype * T.itype) list -> (T.itype * T.itype) list
