@@ -56,8 +56,8 @@ let is_variable = function
     Checks if a variable belongs to the variables of a term
 *)
 let rec vars alpha = function
-  | T.IVar(alpha) -> true
-  | T.IInt | T.IBool -> false
+  | T.IVar(_) as a when alpha = a -> true
+  | T.IVar(_) | T.IInt | T.IBool  -> false
   | T.ICross(m, n) -> (vars alpha m) || (vars alpha n)
   | T.IArrow(a, b) -> (vars alpha a) || (vars alpha b)
 
@@ -74,6 +74,17 @@ let rec varsl alpha = function
     )
 
 
+let rec sub (a, t) = function
+  | x when x = a   -> t
+  | T.ICross(m, n)  -> T.ICross( (sub (a,t) m), (sub (a,t) n) )
+  | T.IArrow(m, n)  -> T.IArrow( (sub (a,t) m), (sub (a,t) n) )
+  | _ as i -> i
+
+let substitute s (t1, t2) = (sub s t1, sub s t2)
+
+let substitute_all s l = List.map (substitute s) l
+
+
 let is_resolved : system -> bool = (fun x -> true)
 
 let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
@@ -86,19 +97,22 @@ let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
     else failwith "unify: cannot infer the type of this expression"
    )
 
-and process l = List.map check ( l |> decompose |> swap |> replace |> erase )
+and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
 and erase l = l(*failwith "todo erase"*)
 
-and replace l = replace_aux l l
+and eliminate l = l (*eliminate_aux l l*)
 
-and replace_aux g = function
+and eliminate_aux g = function
   | [] -> []
-  (*| (a, t)::q when (is_variable a) ->
+  | (a, t)::q when (is_variable a) ->
     (
-      if not(vars a t) && varsl a g
-    )*)
-  | h::q -> h :: (replace q)
+      if not(vars a t) && (varsl a g) then
+        eliminate (substitute_all (a,t) g) (* TODO: g without (a, t) *)
+      else
+        (a, t) :: (eliminate_aux g q)
+    )
+  | h::q -> h :: (eliminate_aux g q)
 
 and swap l = l(*failwith "todo swap"*)
 
