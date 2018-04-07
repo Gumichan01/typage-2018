@@ -96,7 +96,13 @@ let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
 
 and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
-and erase l = l(*failwith "todo erase"*)
+and erase l =
+  let rec aux_erase sl res =
+    match sl with
+    | [] -> res
+    | (s1, s2)::q when s1 = s2 -> aux_erase q (res)
+    | h::q -> aux_erase q (h::res)
+  in aux_erase l []
 
 and eliminate l = eliminate_aux l l
 
