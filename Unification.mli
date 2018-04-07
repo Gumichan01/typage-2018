@@ -6,7 +6,6 @@ exception RecursiveType
 exception TypeMismatch
 exception OccursCheck
 exception Conflict
-val compose : ('a -> 'b) -> ('c -> 'a) -> 'c -> 'b
 val delete : ('a * 'a) list -> ('a * 'a) list
 val is_resolved : system -> bool
 val unify_aux : system -> unifier

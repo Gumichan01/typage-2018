@@ -30,8 +30,6 @@ exception OccursCheck
 exception Conflict
 
 
-let compose f g x = f (g x)
-
 let delete tsl =
   let rec aux_delete l res =
     match l with
