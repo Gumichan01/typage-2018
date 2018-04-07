@@ -79,20 +79,41 @@ let rec system_without_subs (s: substitution) : system -> system = function
   | h::q when h = s -> q
   | h::q -> h :: (system_without_subs s q)
 
+(*
+    pre-condition:  { α₁ = t₁, ..., αₙ = tₙ }
 
-let is_resolved : system -> bool = (fun x -> true)
+    Every α are variables. t could be anything
+*)
+let distinct (l : system) =
+  let rec d_aux l hashtbl =
+    match l with
+    | [] -> true
+    | (T.IVar(a), _)::q ->
+      begin
+        if Hashtbl.mem hashtbl a then
+          false
+        else
+          begin
+            Hashtbl.add hashtbl a 0;
+            d_aux q hashtbl
+          end
+      end
+    | _ -> assert false (* pre-condition *)
+  in d_aux l ( Hashtbl.create (List.length l) )
 
-let rec unify_aux (slist : system) : unifier = (*failwith "TODO unify"*)
-  match slist with
-  | [] -> []
-  | _ ->
-   begin
-     let res = process slist in
-     if is_resolved res then
-       res
-     else
-       failwith "unify: cannot infer the type of this expression"
-   end
+let is_resolved : system -> bool = (*(fun x -> true)*)
+  (fun l -> distinct l)
+
+let unify (slist : system) : unifier =
+
+let rec unify_aux (sys : system) : unifier =
+  begin
+    let nsys = process sys in
+    if is_resolved nsys then
+      nsys
+    else
+      unify_aux nsys
+  end
 
 and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
@@ -164,11 +185,7 @@ and conflict = function
   | (T.IBool, T.IArrow(_, _)) | (T.IArrow(_, _), T.IBool) -> true
   | _ -> false
 
-
-let unify (slist : system) : unifier =
-  match slist with
-  | [] -> []
-  | _ -> unify_aux slist
+in unify_aux slist
 
 
 (* Just to test *)
