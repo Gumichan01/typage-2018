@@ -7,7 +7,6 @@
   Author : Luxon JEAN-PIERRE
 *)
 
-open ChurchType;;
 
 (* Expression to infer the type of *)
 type expression =

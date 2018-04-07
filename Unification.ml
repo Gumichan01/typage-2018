@@ -41,4 +41,4 @@ let swap tsl =
     | (IBool, IVar(s))::q -> aux_swap q ((IVar(s), IBool)::res)
     | (IInt, IVar(s))::q  -> aux_swap q ((IVar(s), IInt)::res)
     | h::q -> aux_swap q (h::res)
-  in aux_swap tsl []*)
+  in aux_swap tsl []
