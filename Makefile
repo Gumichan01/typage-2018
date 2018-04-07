@@ -14,13 +14,22 @@ ChurchType.cmi: ChurchType.mli
 ChurchType.cmo: ChurchType.ml ChurchType.mli ChurchType.cmi
 	ocamlc $(CFLAGS) $<
 
+IType.mli: IType.ml
+	ocamlc -i $< > $@
+
+IType.cmi: IType.mli
+	ocamlc $(CFLAGS) $<
+
+IType.cmo: IType.ml IType.mli IType.cmi
+	ocamlc $(CFLAGS) $<
+
 Conversion.mli: Conversion.ml
 	ocamlc -i $< > $@
 
 Conversion.cmi: Conversion.mli
 	ocamlc $(CFLAGS) $<
 
-Conversion.cmo: Conversion.ml Conversion.mli Conversion.cmi ChurchType.cmo
+Conversion.cmo: Conversion.ml Conversion.mli Conversion.cmi IType.cmo
 	ocamlc $(CFLAGS) $<
 
 Unification.mli: Unification.ml
@@ -29,7 +38,7 @@ Unification.mli: Unification.ml
 Unification.cmi: Unification.mli
 	ocamlc $(CFLAGS) $<
 
-Unification.cmo: Unification.ml Unification.mli Unification.cmi ChurchType.cmo
+Unification.cmo: Unification.ml Unification.mli Unification.cmi IType.cmo
 	ocamlc $(CFLAGS) $<
 
 Walgo.mli: Walgo.ml
@@ -38,8 +47,11 @@ Walgo.mli: Walgo.ml
 Walgo.cmi: Walgo.mli
 	ocamlc $(CFLAGS) $<
 
-Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo ChurchType.cmo
+Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo IType.cmo
 	ocamlc $(CFLAGS) $<
 
 clean:
 	rm -f *.cmo *.cmi
+
+mrproper: clean
+	rm -f a.out
