@@ -13,16 +13,16 @@ module T = IType
 
 (*
   technically → (IVar, T.itype {IVar / real type})
+  Sub → substitution
+  Bottom → fail/occur-check
 *)
-type substitution = (T.itype * T.itype)
+type substitution = Sub of T.itype * T.itype | Bottom
 
 (*The most greatest unifier *)
 type unifier = substitution list
 
 (* System to unify *)
 type system = unifier
-
-let rec unify (tslist : system) : unifier = failwith "TODO unify"
 
 
 let delete tsl =
@@ -41,3 +41,11 @@ let swap tsl =
     | (T.IInt, T.IVar(s))::q  -> aux_swap q ((T.IVar(s), T.IInt)::res)
     | h::q -> aux_swap q (h::res)
   in aux_swap tsl []
+
+
+let rec unify_aux (slist : system) : unifier = failwith "TODO unify"
+
+let unify (slist : system) : unifier = (*failwith "TODO unify"*)
+  match slist with
+  | [] -> []
+  | _ -> unify_aux slist
