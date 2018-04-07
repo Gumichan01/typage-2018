@@ -172,14 +172,24 @@ let unify (slist : system) : unifier =
       else p
 
   and occurs_check = function
-    | (T.IVar(s), T.ICross(_, _))
-    | (T.IVar(s), T.IArrow(_, _))-> true (* TODO: check that *)
+    | (T.IVar(s), T.ICross(x, y))
+    | (T.IVar(s), T.IArrow(x, y)) ->
+      begin
+          let a = T.IVar(s) in
+          vars a x && vars a y
+      end
     | _ -> false
 
   (*
-      f(s₀, ..., sₖ) = g(t₀, ..., tₙ)     f != g or k != n
+      . f(s₀, ..., sₖ) = g(t₀, ..., tₙ)     f != g or k != n
+      . int = bool
+      . bool = int
+      . α × α = α -> α
+      . α = α × α  - recursive type
+      . α = α -> α - recursive type
   *)
   and conflict = function
+    | (T.IInt, T.IBool) | (T.IBool, T.IInt)
     | (T.IInt, T.ICross(_, _)) | (T.ICross(_, _), T.IInt)
     | (T.IInt, T.IArrow(_, _)) | (T.IArrow(_, _), T.IInt)
     | (T.IBool, T.ICross(_, _)) | (T.ICross(_, _), T.IBool)
