@@ -1,5 +1,6 @@
 module T = Type
 module E = Expression
+module U = Unification
 module V :
   sig
     type t = string

@@ -211,6 +211,26 @@ let unify slist : unifier =
   in unify_aux ( to_eql slist )
 
 
+(*
+  Unifier - composition
+*)
+
+let comp_sub s ( Sub(e1,e2) ) = Sub(e1, (sub s e2))
+
+let comp_map g v = List.map (comp_sub v) g
+
+let compose_unifier u1 u2 =
+  let rec comp_aux g = function
+    | [] -> g
+    | s::q -> comp_aux ( comp_map g s ) q
+  in
+    begin
+        let (Unifier(g)) = u1 in
+        let (Unifier(f)) = u2 in
+        comp_aux g f
+    end
+
+
 (* Just to test *)
 
 let rec to_string = function
@@ -233,4 +253,8 @@ let s =
   Eq((T.Tvar("α1"), T.Tvar("α4")));
   Eq((T.Cross(T.Tvar("α3"), T.Tvar("α4")), T.Cross(T.Bool, T.Int))) ] in
 let (Unifier(res)) = unify (from_eql s) in
-List.map printI res;
+List.map printI res;;
+
+
+(*let tau = [ Eq((T.Tvar("α1"), T.Int));
+            Eq((T.Int, T.Int))] in*)
