@@ -18,17 +18,20 @@ module T = Type
 type substitution = Sub of T.itype * T.itype
 
 (*The most greatest unifier *)
-type unifier = substitution list
+type unifier = Unifier of substitution list
 
 (* System to unify *)
 type equation = Eq of T.itype * T.itype
-type system = equation list
+type system =  System of equation list
 
 exception RecursiveType
 exception TypeMismatch
 exception OccursCheck
 exception Conflict
 
+
+let to_eql ( System(eql) ) = eql
+let from_eql eql = System(eql)
 
 let is_variable = function
   | T.Tvar(_) -> true
@@ -84,7 +87,7 @@ let rec system_without_subs ( Sub(a, b) ) = function
 
     Every α are variables. t could be anything
 *)
-let distinct (l: system) =
+let distinct l =
   let rec d_aux l hashtbl =
     match l with
     | [] -> true
@@ -101,21 +104,21 @@ let distinct (l: system) =
     | _ -> assert false (* pre-condition *)
   in d_aux l ( Hashtbl.create (List.length l) )
 
-let is_resolved : system -> bool =
+let is_resolved =
   (fun l -> distinct l)
 
 
-let to_unifier (sys: system) : unifier =
+let to_unifier sys =
   let rec aux_u l acc =
     match l with
-    | [] -> acc
+    | [] -> Unifier(acc)
     | ( Eq(m, n) )::q  -> aux_u q ( ( Sub(m, n) )::acc )
   in aux_u sys []
 
 
 (** The function that makes the unification *)
 
-let unify (slist : system) : unifier =
+let unify slist : unifier =
   let rec unify_aux sys =
     begin
       let nsys = process sys in
@@ -205,11 +208,11 @@ let unify (slist : system) : unifier =
     | Eq(T.Bool, T.Arrow(_, _)) | Eq(T.Arrow(_, _), T.Bool) -> true
     | _ -> false
 
-  in unify_aux slist
+  in unify_aux ( to_eql slist )
 
 
 (* Just to test *)
-(*
+
 let rec to_string = function
   | T.Int -> "int"
   | T.Bool -> "bool"
@@ -218,16 +221,16 @@ let rec to_string = function
   | T.Tvar(s) -> s
 
 
-let printI (a, b) =
+let printI (Sub(a, b)) =
   print_string((to_string a) ^ "/" ^ (to_string b));
   print_endline("");;
 
 
 let s =
-[ (T.Tvar("α1"), T.Int);
-  (T.Int, T.Int);
-  (T.Bool, T.Tvar("α2"));
-  (T.Tvar("α1"), T.Tvar("α4"));
-  (T.Cross(T.Tvar("α3"), T.Tvar("α4")), T.Cross(T.Bool, T.Int)) ] in
-let res = unify s in
-List.map printI res;*)
+[ Eq((T.Tvar("α1"), T.Int));
+  Eq((T.Int, T.Int));
+  Eq((T.Bool, T.Tvar("α2")));
+  Eq((T.Tvar("α1"), T.Tvar("α4")));
+  Eq((T.Cross(T.Tvar("α3"), T.Tvar("α4")), T.Cross(T.Bool, T.Int))) ] in
+let (Unifier(res)) = unify (from_eql s) in
+List.map printI res;
