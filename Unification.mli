@@ -13,8 +13,8 @@ val varsl : T.itype -> equation list -> bool
 val sub : substitution -> T.itype -> T.itype
 val substitute : substitution -> equation -> equation
 val substitute_all : substitution -> equation list -> equation list
-val system_without_subs : substitution -> system -> system
+val system_without_subs : substitution -> equation list -> equation list
 val distinct : system -> bool
 val is_resolved : system -> bool
-val to_unifier : equation list -> substitution list
+val to_unifier : system -> unifier
 val unify : system -> unifier

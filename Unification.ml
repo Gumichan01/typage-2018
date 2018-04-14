@@ -70,7 +70,7 @@ let substitute s (Eq(t1, t2)) = Eq( (sub s t1), (sub s t2) )
 
 let substitute_all s sys = List.map (substitute s) sys
 
-let rec system_without_subs ( Sub(a, b) ) : system -> system = function
+let rec system_without_subs ( Sub(a, b) ) = function
   | [] -> []
   | Eq(m, n)::q when m = a && n = b -> q
   | h::q ->
@@ -84,7 +84,7 @@ let rec system_without_subs ( Sub(a, b) ) : system -> system = function
 
     Every α are variables. t could be anything
 *)
-let distinct (l : system) =
+let distinct (l: system) =
   let rec d_aux l hashtbl =
     match l with
     | [] -> true
@@ -105,7 +105,7 @@ let is_resolved : system -> bool =
   (fun l -> distinct l)
 
 
-let to_unifier sys =
+let to_unifier (sys: system) : unifier =
   let rec aux_u l acc =
     match l with
     | [] -> acc
@@ -116,7 +116,7 @@ let to_unifier sys =
 (** The function that makes the unification *)
 
 let unify (slist : system) : unifier =
-  let rec unify_aux (sys : system) : unifier =
+  let rec unify_aux sys =
     begin
       let nsys = process sys in
       if is_resolved nsys then
