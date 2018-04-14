@@ -14,13 +14,13 @@ module V = struct
   type t = string
   let compare v1 v2 = Pervasives.compare v1 v2
   let equal v1 v2 = v1 = v2
-  let create = let r = ref 0 in fun () -> incr r; T.IVar("α" ^ string_of_int(!r))
+  let create = let r = ref 0 in fun () -> incr r; T.Tvar("α" ^ string_of_int(!r))
 end
 
 let math_ops = ["+"; "-"; "*"; "/"]
 let bool_ops = ["&&"; "||"]
-let math_basictype = T.IArrow(T.ICross(T.IInt, T.IInt), T.IInt)
-let bool_basictype = T.IArrow(T.ICross(T.IBool, T.IBool), T.IBool)
+let math_basictype = T.Arrow(T.Cross(T.Int, T.Int), T.Int)
+let bool_basictype = T.Arrow(T.Cross(T.Bool, T.Bool), T.Bool)
 
 type expression = E.t
 
@@ -50,14 +50,14 @@ let rec infer (delta : environment) (e : expression) =
   | E.Pair(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer (sigma delta rhob) l in
-    (T.ICross(b, c), []) (* change it *)
+    (T.Cross(b, c), []) (* change it *)
 
   | E.Apply(_,_) -> failwith "TODO W-algorithm: Apply"
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  (V.create ()) in
     let b, rho = infer ((x, fresh_alpha)::delta) n in
-    (T.IArrow(fresh_alpha, b), []) (* change it *)
+    (T.Arrow(fresh_alpha, b), []) (* change it *)
 
   | E.Letin(_,_,_) -> failwith "TODO W-algorithm: Letin"
 
@@ -92,10 +92,10 @@ let rec infer (delta : environment) (e : expression) =
   (* Get the type instance of constant value *)
   and inst_constv x =
     (match inst_intv x with
-     | Some(_) -> T.IInt
+     | Some(_) -> T.Int
      | None ->
        (match x with
-        | "true" | "false" -> T.IBool
+        | "true" | "false" -> T.Bool
         | _ -> assert(false) (* pre-condoition: integer or boolean value *)
        )
     )

@@ -12,7 +12,7 @@ module T = IType
 (* @note The function fails if a variable capture happened during the alpha-conversion *)
 
 (*
-  technically → (IVar, T.itype {IVar / real type})
+  technically → (Tvar, T.itype {Tvar / real type})
 *)
 type substitution = T.itype * T.itype
 
@@ -38,17 +38,17 @@ let delete tsl =
 
 
 let is_variable = function
-  | T.IVar(_) -> true
+  | T.Tvar(_) -> true
   | _ -> false
 
 (*
     Checks if a variable belongs to the variables of a term
 *)
 let rec vars alpha = function
-  | T.IVar(_) as a when alpha = a -> true
-  | T.IVar(_) | T.IInt | T.IBool  -> false
-  | T.ICross(m, n) -> (vars alpha m) || (vars alpha n)
-  | T.IArrow(a, b) -> (vars alpha a) || (vars alpha b)
+  | T.Tvar(_) as a when alpha = a -> true
+  | T.Tvar(_) | T.Int | T.Bool  -> false
+  | T.Cross(m, n) -> (vars alpha m) || (vars alpha n)
+  | T.Arrow(a, b) -> (vars alpha a) || (vars alpha b)
 
 (*
     Checks if a variable is in a system
@@ -66,8 +66,8 @@ let rec varsl alpha = function
 
 let rec sub ((a, t) : substitution) = function
   | x when x = a   -> t
-  | T.ICross(m, n)  -> T.ICross( (sub (a,t) m), (sub (a,t) n) )
-  | T.IArrow(m, n)  -> T.IArrow( (sub (a,t) m), (sub (a,t) n) )
+  | T.Cross(m, n)  -> T.Cross( (sub (a,t) m), (sub (a,t) n) )
+  | T.Arrow(m, n)  -> T.Arrow( (sub (a,t) m), (sub (a,t) n) )
   | _ as i -> i
 
 let substitute (s: substitution) (t1, t2) = (sub s t1, sub s t2)
@@ -88,7 +88,7 @@ let distinct (l : system) =
   let rec d_aux l hashtbl =
     match l with
     | [] -> true
-    | (T.IVar(a), _)::q ->
+    | (T.Tvar(a), _)::q ->
       begin
         if Hashtbl.mem hashtbl a then
           false
@@ -148,15 +148,15 @@ let unify (slist : system) : unifier =
     let rec aux_swap sl res =
       match sl with
       | [] -> res
-      | ( T.IVar(s), x )::q
-      | ( x, T.IVar(s) )::q -> aux_swap q ( (T.IVar(s), x)::res )
+      | ( T.Tvar(s), x )::q
+      | ( x, T.Tvar(s) )::q -> aux_swap q ( (T.Tvar(s), x)::res )
       | h::q -> aux_swap q (h::res)
     in aux_swap l []
 
   and decompose = function
     | [] -> []    (* yes, it is possible *)
-    | (T.ICross(u, w), T.ICross(v, x))::q
-    | (T.IArrow(u, w), T.IArrow(v, x))::q -> (u, v) :: (w, x) :: (decompose q)
+    | (T.Cross(u, w), T.Cross(v, x))::q
+    | (T.Arrow(u, w), T.Arrow(v, x))::q -> (u, v) :: (w, x) :: (decompose q)
     | h::q -> h :: (decompose q)
 
   (*
@@ -172,10 +172,10 @@ let unify (slist : system) : unifier =
       else p
 
   and occurs_check = function
-    | (T.IVar(s), T.ICross(x, y))
-    | (T.IVar(s), T.IArrow(x, y)) ->
+    | (T.Tvar(s), T.Cross(x, y))
+    | (T.Tvar(s), T.Arrow(x, y)) ->
       begin
-          let a = T.IVar(s) in
+          let a = T.Tvar(s) in
           vars a x && vars a y
       end
     | _ -> false
@@ -189,11 +189,11 @@ let unify (slist : system) : unifier =
       . α = α -> α - recursive type
   *)
   and conflict = function
-    | (T.IInt, T.IBool) | (T.IBool, T.IInt)
-    | (T.IInt, T.ICross(_, _)) | (T.ICross(_, _), T.IInt)
-    | (T.IInt, T.IArrow(_, _)) | (T.IArrow(_, _), T.IInt)
-    | (T.IBool, T.ICross(_, _)) | (T.ICross(_, _), T.IBool)
-    | (T.IBool, T.IArrow(_, _)) | (T.IArrow(_, _), T.IBool) -> true
+    | (T.Int, T.Bool) | (T.Bool, T.Int)
+    | (T.Int, T.Cross(_, _)) | (T.Cross(_, _), T.Int)
+    | (T.Int, T.Arrow(_, _)) | (T.Arrow(_, _), T.Int)
+    | (T.Bool, T.Cross(_, _)) | (T.Cross(_, _), T.Bool)
+    | (T.Bool, T.Arrow(_, _)) | (T.Arrow(_, _), T.Bool) -> true
     | _ -> false
 
   in unify_aux slist
@@ -202,11 +202,11 @@ let unify (slist : system) : unifier =
 (* Just to test *)
 
 let rec to_string = function
-  | T.IInt -> "int"
-  | T.IBool -> "bool"
-  | T.ICross(x, y) -> (to_string x) ^ " × " ^ (to_string y)
-  | T.IArrow(x, y) -> "(" ^ (to_string x) ^ ") → (" ^ (to_string y) ^ ")"
-  | T.IVar(s) -> s
+  | T.Int -> "int"
+  | T.Bool -> "bool"
+  | T.Cross(x, y) -> (to_string x) ^ " × " ^ (to_string y)
+  | T.Arrow(x, y) -> "(" ^ (to_string x) ^ ") → (" ^ (to_string y) ^ ")"
+  | T.Tvar(s) -> s
 
 
 let printI (a, b) =
@@ -215,10 +215,10 @@ let printI (a, b) =
 
 
 let s =
-[ (T.IVar("α1"), T.IInt);
-  (T.IInt, T.IInt);
-  (T.IBool, T.IVar("α2"));
-  (T.IVar("α1"), T.IVar("α4"));
-  (T.ICross(T.IVar("α3"), T.IVar("α4")), T.ICross(T.IBool, T.IInt)) ] in
+[ (T.Tvar("α1"), T.Int);
+  (T.Int, T.Int);
+  (T.Bool, T.Tvar("α2"));
+  (T.Tvar("α1"), T.Tvar("α4"));
+  (T.Cross(T.Tvar("α3"), T.Tvar("α4")), T.Cross(T.Bool, T.Int)) ] in
 let res = unify s in
 List.map printI res;

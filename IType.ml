@@ -9,16 +9,9 @@
 
 
 type itype =
-  | IBool
-  | IInt
-  | ICross of itype * itype
-  | IArrow of itype * itype
+  | Bool
+  | Int
+  | Cross of itype * itype
+  | Arrow of itype * itype
   (* temporay type I am using *)
-  | IVar of string
-
-module TVar = struct
-  type t = string
-  let compare (v1 : t) (v2 : t) = Pervasives.compare v1 v2
-  let equal (v1 : t) (v2 : t) = v1 = v2
-  let create = let r = ref 0 in fun () -> incr r; IVar("α" ^ string_of_int(!r))
-end
+  | Tvar of string

@@ -44,7 +44,7 @@ Unification.mli: Unification.ml
 Unification.cmi: Unification.mli IType.cmo
 	ocamlc $(CFLAGS) $<
 
-Unification.cmo: Unification.ml Unification.mli Unification.cmi IType.cmo
+Unification.cmo: IType.cmo Unification.ml Unification.mli Unification.cmi
 	ocamlc $(CFLAGS) $<
 
 Walgo.mli: Walgo.ml Expression.cmo IType.cmo
