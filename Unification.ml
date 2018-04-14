@@ -7,7 +7,7 @@
   Author : Luxon JEAN-PIERRE
 *)
 
-module T = IType
+module T = Type
 
 (* @note The function fails if a variable capture happened during the alpha-conversion *)
 

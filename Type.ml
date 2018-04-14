@@ -1,6 +1,6 @@
 
 (*
-  IType.ml
+  Type.ml
 
   Type to infer
 

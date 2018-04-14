@@ -14,13 +14,13 @@ ChurchType.cmi: ChurchType.mli
 ChurchType.cmo: ChurchType.ml ChurchType.mli ChurchType.cmi
 	ocamlc $(CFLAGS) $<
 
-IType.mli: IType.ml
+Type.mli: Type.ml
 	ocamlc -i $< > $@
 
-IType.cmi: IType.mli
+Type.cmi: Type.mli
 	ocamlc $(CFLAGS) $<
 
-IType.cmo: IType.ml IType.mli IType.cmi
+Type.cmo: Type.ml Type.mli Type.cmi
 	ocamlc $(CFLAGS) $<
 
 Expression.cmi: Expression.mli
@@ -35,25 +35,25 @@ Variable.mli: Variable.ml
 Variable.cmi: Variable.mli
 	ocamlc $(CFLAGS) $<
 
-Variable.cmo: Variable.ml Variable.mli Variable.cmi IType.cmo
+Variable.cmo: Variable.ml Variable.mli Variable.cmi Type.cmo
 	ocamlc $(CFLAGS) $<
 
 Unification.mli: Unification.ml
 	ocamlc -i $< > $@
 
-Unification.cmi: Unification.mli IType.cmo
+Unification.cmi: Unification.mli Type.cmo
 	ocamlc $(CFLAGS) $<
 
-Unification.cmo: IType.cmo Unification.ml Unification.mli Unification.cmi
+Unification.cmo: Type.cmo Unification.ml Unification.mli Unification.cmi
 	ocamlc $(CFLAGS) $<
 
-Walgo.mli: Walgo.ml Expression.cmo IType.cmo
+Walgo.mli: Walgo.ml Expression.cmo Type.cmo
 	ocamlc -i $< > $@
 
 Walgo.cmi: Walgo.mli
 	ocamlc $(CFLAGS) $<
 
-Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo Expression.cmo IType.cmo
+Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo Expression.cmo Type.cmo
 	ocamlc $(CFLAGS) $<
 
 clean:

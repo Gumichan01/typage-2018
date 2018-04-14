@@ -7,7 +7,7 @@
   Author : Luxon JEAN-PIERRE
 *)
 
-module T = IType
+module T = Type
 module E = Expression
 
 module V = struct

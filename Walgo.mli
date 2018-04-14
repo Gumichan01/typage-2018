@@ -1,4 +1,4 @@
-module T = IType
+module T = Type
 module E = Expression
 module V :
   sig
