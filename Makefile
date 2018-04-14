@@ -26,7 +26,7 @@ Type.cmo: Type.ml Type.mli Type.cmi
 Expression.cmi: Expression.mli
 	ocamlc $(CFLAGS) $<
 
-Expression.cmo: Expression.mli Expression.cmi
+Expression.cmo: Expression.ml Expression.mli Expression.cmi
 	ocamlc $(CFLAGS) $<
 
 Variable.mli: Variable.ml
@@ -44,7 +44,7 @@ Unification.mli: Unification.ml
 Unification.cmi: Unification.mli Type.cmo
 	ocamlc $(CFLAGS) $<
 
-Unification.cmo: Type.cmo Unification.ml Unification.mli Unification.cmi
+Unification.cmo: Unification.ml Unification.mli Unification.cmi Type.cmo
 	ocamlc $(CFLAGS) $<
 
 Walgo.mli: Walgo.ml Expression.cmo Type.cmo
@@ -53,7 +53,7 @@ Walgo.mli: Walgo.ml Expression.cmo Type.cmo
 Walgo.cmi: Walgo.mli
 	ocamlc $(CFLAGS) $<
 
-Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo Expression.cmo Type.cmo
+Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo Expression.cmo
 	ocamlc $(CFLAGS) $<
 
 clean:
