@@ -58,7 +58,9 @@ let rec infer (delta : environment) (e : expression) =
     let c, rhoc = infer ( sigma delta rhob ) l in
     ( T.Cross(b, c), ( cunifier (U.Unifier(rhob)) (U.Unifier(rhoc)) ) )
 
-  | E.Apply(_,_) -> failwith "TODO W-algorithm: Apply"
+  | E.Apply(n, l) -> failwith "TODO W-algorithm: Apply"
+    (*let b, rhob = infer delta n in
+    let c, rhoc = infer ( sigma delta rhob ) l in*)
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  ( V.create () ) in
@@ -97,19 +99,50 @@ let rec infer (delta : environment) (e : expression) =
   (* Get the type instance of the variable or the constant value *)
   and inst env = function
   | E.Var(s)   -> List.assoc s env
-  | E.Const(x) -> inst_constv x
+  | E.Const(x) -> inst_constv env x
   | _-> assert(false) (* type instance *)
 
+
   (* Get the type instance of constant value *)
-  and inst_constv x =
-    (match inst_intv x with
+  and inst_constv env x =
+    match inst_intv x with
      | Some(_) -> T.Int
      | None ->
-       (match x with
-        | "true" | "false" -> T.Bool
-        | _ -> assert(false) (* pre-condition: integer or boolean value *)
-       )
-    )
+       begin
+           match x with
+           | "true" | "false" -> T.Bool
+           | "+" | "-" | "*" | "/" -> T.Arrow( T.Cross( T.Int, T.Int ), T.Int )
+           | "fst" ->
+             begin
+               let a1 = ( V.create () ) in
+               let a2 = ( V.create () ) in
+               T.Arrow( T.Cross( a1, a2 ), a1 )
+             end
+
+           | "snd" ->
+             begin
+               let a1 = ( V.create () ) in
+               let a2 = ( V.create () ) in
+               T.Arrow( T.Cross( a1, a2 ), a2 )
+             end
+
+           | "ifthenelse" ->
+              begin
+                let a = ( V.create () ) in
+                T.Arrow( T.Cross( T.Bool, T.Cross( a, a) ), a )
+              end
+
+           | "fix" ->
+             begin
+               let a = ( V.create () ) in
+               T.Arrow( T.Cross( a, a), a )
+             end
+
+           | _ -> assert(false) (* pre-condition: integer or boolean value *)
+       end
+
+
+
   and inst_intv s =
     try
       Some(int_of_string s)
@@ -130,9 +163,13 @@ let eval expr : unit =
 
 (* constant values *)
 eval ( E.Const("42") );;
-eval ( E.Const("-1") );;
 eval ( E.Const("true") );;
 eval ( E.Const("false") );;
+(*eval ( E.Const("+") );;
+eval ( E.Const("fst") );;
+eval ( E.Const("snd") );;
+eval ( E.Const("ifthenelse") );;
+eval ( E.Const("fix") );;*)
 (* pairs *)
 eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
 eval ( E.Pair( E.Const("42"), E.Const("true") ) );;
