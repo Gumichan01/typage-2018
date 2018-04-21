@@ -56,14 +56,14 @@ let rec infer (delta : environment) (e : expression) =
   | E.Pair(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
-    ( T.Cross(b, c), ( cunifier (U.Unifier(rhob)) (U.Unifier(rhoc)) ) ) (* change it *)
+    ( T.Cross(b, c), ( cunifier (U.Unifier(rhob)) (U.Unifier(rhoc)) ) )
 
   | E.Apply(_,_) -> failwith "TODO W-algorithm: Apply"
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  ( V.create () ) in
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
-    ( T.Arrow( fresh_alpha, b ), [] ) (* change it *)
+    ( T.Arrow( fresh_alpha, b ), rho ) (* change it *)
 
   | E.Letin(_,_,_) -> failwith "TODO W-algorithm: Letin"
 
@@ -127,17 +127,25 @@ let eval expr : unit =
 
 
 (* tests *)
+
+(* constant values *)
 eval ( E.Const("42") );;
 eval ( E.Const("-1") );;
 eval ( E.Const("true") );;
 eval ( E.Const("false") );;
+(* pairs *)
 eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
 eval ( E.Pair( E.Const("42"), E.Const("true") ) );;
 eval ( E.Pair( E.Const("false"), E.Const("42") ) );;
 eval ( E.Pair( E.Const("false"), E.Const("true") ) );;
 
-eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), E.Pair( E.Const("false"), E.Const("true") ) ) ) );;
-eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;
+(*eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), E.Pair( E.Const("false"), E.Const("true") ) ) ) );;*)
+(*eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;*)
+
+(* lambda *)
+eval ( E.Lambda( "x", E.Var("x") ) );;
+eval ( E.Lambda( "x", E.Pair( E.Var("x"), E.Var("x") ) ) );;
+
 
 (*
     Comment:
