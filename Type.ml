@@ -19,6 +19,6 @@ type itype =
 let rec to_string = function
   | Int -> "int"
   | Bool -> "bool"
-  | Cross(x, y) -> (to_string x) ^ " × " ^ (to_string y)
-  | Arrow(x, y) -> "(" ^ (to_string x) ^ ") → (" ^ (to_string y) ^ ")"
+  | Cross(x, y) -> "(" ^(to_string x) ^ " × " ^ (to_string y) ^ ")"
+  | Arrow(x, y) -> (to_string x) ^ " → " ^ (to_string y)
   | Tvar(s) -> s

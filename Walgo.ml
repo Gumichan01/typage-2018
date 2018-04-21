@@ -127,8 +127,17 @@ let eval expr : unit =
 
 
 (* tests *)
-eval (E.Const("42"));;
+eval ( E.Const("42") );;
+eval ( E.Const("-1") );;
+eval ( E.Const("true") );;
+eval ( E.Const("false") );;
+eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
+eval ( E.Pair( E.Const("42"), E.Const("true") ) );;
+eval ( E.Pair( E.Const("false"), E.Const("42") ) );;
+eval ( E.Pair( E.Const("false"), E.Const("true") ) );;
 
+eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), E.Pair( E.Const("false"), E.Const("true") ) ) ) );;
+eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;
 
 (*
     Comment:
