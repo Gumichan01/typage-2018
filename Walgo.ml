@@ -113,7 +113,7 @@ let rec infer (delta : environment) (e : expression) =
 
     - (TODO final goal) Apply the algorithm for each element of type chtype (an expression).
       (TODO) replace a type by another using the substitution
-      (TODO) σ₁ o σ₂ function
+      (DONE) σ₁ o σ₂ function
     - (DONE) Unification
     - (DONE) Free and bound variables
     - (TODO) α-conversion

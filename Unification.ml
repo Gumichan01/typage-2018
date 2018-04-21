@@ -233,7 +233,7 @@ let compose_unifier u1 u2 =
 
 
 (* Just to test *)
-
+(*
 let rec to_string = function
   | T.Int -> "int"
   | T.Bool -> "bool"
@@ -262,3 +262,4 @@ let g = [ Sub((T.Tvar("α5"), T.Tvar("α4"))); Sub((T.Tvar("α6"), T.Tvar("α2")
 
 let res2 = compose_unifier ( Unifier(g) ) ( Unifier(res) ) in
 List.map printI res2;;
+*)
