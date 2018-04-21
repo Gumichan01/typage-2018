@@ -15,3 +15,10 @@ type itype =
   | Arrow of itype * itype
   (* temporay type I am using *)
   | Tvar of string
+
+let rec to_string = function
+  | Int -> "int"
+  | Bool -> "bool"
+  | Cross(x, y) -> (to_string x) ^ " × " ^ (to_string y)
+  | Arrow(x, y) -> "(" ^ (to_string x) ^ ") → (" ^ (to_string y) ^ ")"
+  | Tvar(s) -> s
