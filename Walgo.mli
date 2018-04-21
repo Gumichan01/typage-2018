@@ -24,3 +24,4 @@ val sigma_in : environment -> U.substitution list -> environment
 val inst : environment -> E.t -> T.itype
 val inst_constv : string -> T.itype
 val inst_intv : string -> int option
+val eval : expression -> unit

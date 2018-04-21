@@ -115,8 +115,19 @@ let rec infer (delta : environment) (e : expression) =
       Some(int_of_string s)
     with
     | _ -> None
+;;
 
 
+
+(* just to test *)
+
+let eval expr : unit =
+  let ty, _ = infer [] expr in
+  print_string ( ( T.to_string ty ) ^ "\n");;
+
+
+(* tests *)
+eval (E.Const("42"));;
 
 
 (*
