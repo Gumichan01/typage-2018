@@ -17,7 +17,8 @@ val lassoc_opt : 'a -> ('a * 'b) list -> 'b option
 val from_sblist : U.substitution list -> (U.T.itype * U.T.itype) list
 type environment = (string * T.itype) list
 type unifier = U.unifier
-val cunifier : U.unifier -> U.unifier -> U.substitution list
+val cunifier :
+  U.substitution list -> U.substitution list -> U.substitution list
 val infer : environment -> expression -> T.itype * U.substitution list
 val sigma : environment -> U.substitution list -> environment
 val sigma_in : environment -> U.substitution list -> environment

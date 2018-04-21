@@ -48,7 +48,7 @@ type environment = (string * T.itype) list
 type unifier = U.unifier
 
 
-let cunifier = U.compose_unifier
+let cunifier u1 u2 = U.compose_unifier ( U.Unifier(u1) ) ( U.Unifier(u2) )
 
 let rec infer (delta : environment) (e : expression) =
   match e with
@@ -56,11 +56,12 @@ let rec infer (delta : environment) (e : expression) =
   | E.Pair(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
-    ( T.Cross(b, c), ( cunifier (U.Unifier(rhob)) (U.Unifier(rhoc)) ) )
+    ( T.Cross(b, c), ( cunifier rhob rhoc ) )
 
-  | E.Apply(n, l) -> failwith "TODO W-algorithm: Apply"
-    (*let b, rhob = infer delta n in
-    let c, rhoc = infer ( sigma delta rhob ) l in*)
+  | E.Apply(n, l) -> (*failwith "TODO W-algorithm: Apply"*)
+    let b, rhob = infer delta n in
+    let c, rhoc = infer ( sigma delta rhob ) l in
+    ( T.Int (* TODO unify *), (*cunifier*) ( cunifier rhob rhoc ) (*mu*) )
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  ( V.create () ) in
