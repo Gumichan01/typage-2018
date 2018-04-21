@@ -59,7 +59,7 @@ let rec varsl alpha = function
       | _ -> varsl alpha q
     end
 
-
+(* Recursively replace a 'variable' (α) with the associated term *)
 let rec sub (Sub(a, t)) e =
   let su = Sub(a, t) in
   match e with
@@ -69,7 +69,7 @@ let rec sub (Sub(a, t)) e =
   | _ as i -> i
 
 
-let substitute s (Eq(t1, t2)) = Eq( (sub s t1), (sub s t2) )
+let substitute s ( Eq(t1, t2) ) = Eq( (sub s t1), (sub s t2) )
 
 let substitute_all s sys = List.map (substitute s) sys
 
