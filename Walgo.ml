@@ -71,7 +71,10 @@ let rec infer (delta : environment) (e : expression) =
   | E.Apply(n, l) -> (*failwith "TODO W-algorithm: Apply"*)
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
-    ( T.Int (* TODO unify *), (*cunifier*) ( cunifier rhob rhoc ) (*mu*) )
+    let alpha = ( V.create () ) in
+    let eql = [ U.Eq( (apply_r rhoc b), T.Arrow( c, alpha ) ) ] in
+    let (U.Unifier(mgu)) = U.unify ( U.from_eql eql ) in
+    ( (apply_r mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  ( V.create () ) in
@@ -174,19 +177,19 @@ let eval expr : unit =
 (* tests *)
 
 (* constant values *)
-eval ( E.Const("42") );;
+(*eval ( E.Const("42") );;
 eval ( E.Const("true") );;
-eval ( E.Const("false") );;
+eval ( E.Const("false") );;*)
 (*eval ( E.Const("+") );;
 eval ( E.Const("fst") );;
 eval ( E.Const("snd") );;
 eval ( E.Const("ifthenelse") );;
 eval ( E.Const("fix") );;*)
 (* pairs *)
-eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
+(*eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
 eval ( E.Pair( E.Const("42"), E.Const("true") ) );;
 eval ( E.Pair( E.Const("false"), E.Const("42") ) );;
-eval ( E.Pair( E.Const("false"), E.Const("true") ) );;
+eval ( E.Pair( E.Const("false"), E.Const("true") ) );;*)
 
 (*eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), E.Pair( E.Const("false"), E.Const("true") ) ) ) );;*)
 (*eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;*)
@@ -195,12 +198,34 @@ eval ( E.Pair( E.Const("false"), E.Const("true") ) );;
 eval ( E.Lambda( "x", E.Var("x") ) );;
 eval ( E.Lambda( "x", E.Pair( E.Var("x"), E.Var("x") ) ) );;
 
+print_string ("\nλx. x + x\n");;
+eval ( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) );;
+print_string ("\n4 + 2\n");;
+eval ( E.Apply( E.Const("+"), E.Pair( E.Const("4"), E.Const("2") ) ) );;
+print_string ("\n'+'\n");;
+eval ( E.Const("+") );;
+
+print_string ("\n(λx. x + x) 42\n");;
+eval ( E.Apply( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ), E.Const("42") ) );;
+
+print_string ("\n(λx.x)\n");;
+eval ( E.Lambda( "x", E.Var("x") ) );;
+
+(*
+print_string ("\n(λx.x) 42\n");;
+eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;
+
+print_string ("\n(λx.x) true\n");;
+eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("true") ) );;
+
+print_string ("\n(λx.x) (λy. y + y)\n");;
+eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Lambda( "y", E.Apply( E.Const("+"), E.Pair( E.Var("y"), E.Var("y") ) ) ) ) );;*)
 
 (*
     Comment:
 
     - (TODO final goal) Apply the algorithm for each element of type chtype (an expression).
-      (TODO) apply_r a type by another using the substitution
+      (DONE) apply_r a type by another using the substitution
       (DONE) σ₁ o σ₂ function
     - (DONE) Unification
     - (DONE) Free and bound variables
