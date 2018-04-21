@@ -146,7 +146,7 @@ let unify slist : unifier =
       begin
         let eq = Eq(a, t) in
         let s  = Sub(a, t) in
-        let ng = system_without_subs s g in (* E { a ← t } *)
+        let ng = system_without_subs s g in (* E \ { a ← t } *)
         if not(vars a t) && (varsl a ng) then
           begin
             eliminate ( eq :: (substitute_all s ng) ) (* E' U { a = t } *)
