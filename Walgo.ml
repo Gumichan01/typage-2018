@@ -36,29 +36,34 @@ let lassoc_opt e l =
   | _ -> None
 
 
+let from_sblist sblist =
+  List.map (fun ( U.Sub( a, b ) ) -> ( a, b ) ) sblist
+
+
 (* Typing environment *)
 type environment = (string * T.itype) list
 
 (* substitution *)
-type unifier = (T.itype * T.itype) list
+(*type unifier = (T.itype * T.itype) list*)
+type unifier = U.unifier
 
-let rec infer_program : expression list -> T.itype =
-  failwith "TODO inference + W-algorithm"
+
+let cunifier = U.compose_unifier
 
 let rec infer (delta : environment) (e : expression) =
   match e with
-  | E.Var(_) | E.Const(_) as cv -> (inst delta cv, [])
+  | E.Var(_) | E.Const(_) as cv -> ( inst delta cv, [] )
   | E.Pair(n, l) ->
     let b, rhob = infer delta n in
-    let c, rhoc = infer (sigma delta rhob) l in
-    (T.Cross(b, c), []) (* change it *)
+    let c, rhoc = infer ( sigma delta rhob ) l in
+    ( T.Cross(b, c), ( cunifier (U.Unifier(rhob)) (U.Unifier(rhoc)) ) ) (* change it *)
 
   | E.Apply(_,_) -> failwith "TODO W-algorithm: Apply"
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
-    let fresh_alpha =  (V.create ()) in
-    let b, rho = infer ((x, fresh_alpha)::delta) n in
-    (T.Arrow(fresh_alpha, b), []) (* change it *)
+    let fresh_alpha =  ( V.create () ) in
+    let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
+    ( T.Arrow( fresh_alpha, b ), [] ) (* change it *)
 
   | E.Letin(_,_,_) -> failwith "TODO W-algorithm: Letin"
 
@@ -69,17 +74,22 @@ let rec infer (delta : environment) (e : expression) =
     So σ(Γ) = x₁ : σ(A₁), ..., xₙ : σ(Aₙ)
 
   *)
-  and sigma (delta: environment) (sub: unifier) =
+  and sigma (delta: environment) sub =
     match sub with
     | [] -> delta
-    | _ -> match delta with [] -> delta | _ ->  sigma_in delta sub
+    | _ ->
+      begin
+          match delta with
+          | [] -> delta
+          | _ ->  sigma_in delta sub
+      end
 
   (* pre-condition: sub is not an empty list *)
-  and sigma_in (delta: environment) (sub: unifier) =
+  and sigma_in (delta: environment) sub =
     match delta with
     | [] -> delta
     | (x, a)::q ->
-      (match lassoc_opt a sub with
+      (match ( lassoc_opt a ( from_sblist sub ) ) with
        | Some(t) -> (x, t) :: sigma_in q sub
        | None -> (x, a) :: sigma_in q sub
       )
@@ -97,7 +107,7 @@ let rec infer (delta : environment) (e : expression) =
      | None ->
        (match x with
         | "true" | "false" -> T.Bool
-        | _ -> assert(false) (* pre-condoition: integer or boolean value *)
+        | _ -> assert(false) (* pre-condition: integer or boolean value *)
        )
     )
   and inst_intv s =
@@ -105,6 +115,7 @@ let rec infer (delta : environment) (e : expression) =
       Some(int_of_string s)
     with
     | _ -> None
+
 
 
 
