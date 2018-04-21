@@ -83,6 +83,15 @@ let rec system_without_subs ( Sub(a, b) ) = function
     end
 
 (*
+    For each pair Eq(a, b), check if a is a variable.
+    return true if every equations have a variable on the left, false otherwise
+*)
+let rec variables_on_left = function
+  | [] -> true
+  | ( Eq(a, _) )::q -> (is_variable a) && (variables_on_left q)
+
+
+(*
     pre-condition:  { α₀ = t₀, ..., αₙ₋₁ = tₙ₋₁ }
 
     Every α are variables. t could be anything
@@ -101,11 +110,16 @@ let distinct l =
             d_aux q hashtbl
           end
       end
-    | _ -> assert false (* pre-condition *)
+    | ( Eq(a, b) )::q ->
+      begin
+          print_string ( ("! " ^(T.to_string a) ^ "\n") );
+          print_string ( ("! " ^(T.to_string b) ^ "\n") );
+          assert false (* pre-condition *)
+      end
   in d_aux l ( Hashtbl.create (List.length l) )
 
 let is_resolved =
-  (fun l -> distinct l)
+  (fun l -> (variables_on_left l) && distinct l)
 
 
 let to_unifier sys =

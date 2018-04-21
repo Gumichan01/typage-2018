@@ -16,6 +16,7 @@ val sub : substitution -> T.itype -> T.itype
 val substitute : substitution -> equation -> equation
 val substitute_all : substitution -> equation list -> equation list
 val system_without_subs : substitution -> equation list -> equation list
+val variables_on_left : equation list -> bool
 val distinct : equation list -> bool
 val is_resolved : equation list -> bool
 val to_unifier : equation list -> unifier
