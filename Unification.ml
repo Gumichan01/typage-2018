@@ -217,6 +217,7 @@ let unify slist : unifier =
 
 let comp_sub s ( Sub(e1,e2) ) = Sub(e1, (sub s e2))
 
+(* for each substitution v, apply it to every elements in g *)
 let comp_map g v = List.map (comp_sub v) g
 
 let compose_unifier u1 u2 =
@@ -227,7 +228,7 @@ let compose_unifier u1 u2 =
     begin
         let (Unifier(g)) = u1 in
         let (Unifier(f)) = u2 in
-        comp_aux g f
+        comp_aux g f    (* f ∘ g *)
     end
 
 
