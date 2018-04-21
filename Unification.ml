@@ -223,7 +223,7 @@ let comp_map g v = List.map (comp_sub v) g
 let compose_unifier u1 u2 =
   let rec comp_aux g = function
     | [] -> g
-    | s::q -> comp_aux ( comp_map g s ) q
+    | s::q -> comp_aux ( s::( comp_map g s )) q
   in
     begin
         let (Unifier(g)) = u1 in
@@ -252,10 +252,13 @@ let s =
   Eq((T.Int, T.Int));
   Eq((T.Bool, T.Tvar("α2")));
   Eq((T.Tvar("α1"), T.Tvar("α4")));
-  Eq((T.Cross(T.Tvar("α3"), T.Tvar("α4")), T.Cross(T.Bool, T.Int))) ] in
-let (Unifier(res)) = unify (from_eql s) in
+  Eq((T.Cross(T.Tvar("α3"), T.Tvar("α4")), T.Cross(T.Bool, T.Int))) ];;
+let (Unifier(res)) = unify (from_eql s);;
 List.map printI res;;
 
+compose_unifier ( Unifier([]) ) ( Unifier([]) );;
+print_string("composition \n");;
+let g = [ Sub((T.Tvar("α5"), T.Tvar("α4"))); Sub((T.Tvar("α6"), T.Tvar("α2"))) ];;
 
-(*let tau = [ Eq((T.Tvar("α1"), T.Int));
-            Eq((T.Int, T.Int))] in*)
+let res2 = compose_unifier ( Unifier(g) ) ( Unifier(res) ) in
+List.map printI res2;;
