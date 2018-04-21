@@ -19,6 +19,7 @@ type environment = (string * T.itype) list
 type unifier = U.unifier
 val cunifier :
   U.substitution list -> U.substitution list -> U.substitution list
+val apply_r : U.substitution list -> U.T.itype -> U.T.itype
 val infer : environment -> expression -> T.itype * U.substitution list
 val sigma : environment -> U.substitution list -> environment
 val sigma_in : environment -> U.substitution list -> environment

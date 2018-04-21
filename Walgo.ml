@@ -50,13 +50,23 @@ type unifier = U.unifier
 
 let cunifier u1 u2 = U.compose_unifier ( U.Unifier(u1) ) ( U.Unifier(u2) )
 
+(*
+    Substitute a type by replacing it with another type, if it can be replaced
+    returns the argument itself otherwise
+ *)
+let apply_r rho a =
+  match ( lassoc_opt a ( from_sblist rho ) ) with
+  | Some(t) -> t
+  | None -> a
+
+
 let rec infer (delta : environment) (e : expression) =
   match e with
   | E.Var(_) | E.Const(_) as cv -> ( inst delta cv, [] )
   | E.Pair(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
-    ( T.Cross(b, c), ( cunifier rhob rhoc ) )
+    ( T.Cross( (apply_r rhoc b), c ), ( cunifier rhob rhoc ) )
 
   | E.Apply(n, l) -> (*failwith "TODO W-algorithm: Apply"*)
     let b, rhob = infer delta n in
@@ -66,7 +76,7 @@ let rec infer (delta : environment) (e : expression) =
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  ( V.create () ) in
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
-    ( T.Arrow( fresh_alpha, b ), rho ) (* change it *)
+    ( T.Arrow( ( apply_r rho fresh_alpha), b ), rho ) (* change it *)
 
   | E.Letin(_,_,_) -> failwith "TODO W-algorithm: Letin"
 
@@ -92,10 +102,11 @@ let rec infer (delta : environment) (e : expression) =
     match delta with
     | [] -> delta
     | (x, a)::q ->
-      (match ( lassoc_opt a ( from_sblist sub ) ) with
-       | Some(t) -> (x, t) :: sigma_in q sub
-       | None -> (x, a) :: sigma_in q sub
-      )
+      begin
+        match ( lassoc_opt a ( from_sblist sub ) ) with
+        | Some(t) -> (x, t) :: sigma_in q sub
+        | None -> (x, a) :: sigma_in q sub
+      end
 
   (* Get the type instance of the variable or the constant value *)
   and inst env = function
@@ -189,7 +200,7 @@ eval ( E.Lambda( "x", E.Pair( E.Var("x"), E.Var("x") ) ) );;
     Comment:
 
     - (TODO final goal) Apply the algorithm for each element of type chtype (an expression).
-      (TODO) replace a type by another using the substitution
+      (TODO) apply_r a type by another using the substitution
       (DONE) σ₁ o σ₂ function
     - (DONE) Unification
     - (DONE) Free and bound variables
