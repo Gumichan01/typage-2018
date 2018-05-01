@@ -1,6 +1,6 @@
 
 CC=ocaml
-CFLAGS=-c
+CFLAGS=-c -g
 OFLAGS=-a
 
 all:

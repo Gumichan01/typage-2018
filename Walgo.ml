@@ -73,7 +73,12 @@ let rec infer (delta : environment) (e : expression) =
     let c, rhoc = infer ( sigma delta rhob ) l in
     let alpha = ( V.create () ) in
     let eql = [ U.Eq( (apply_r rhoc b), T.Arrow( c, alpha ) ) ] in
-    let (U.Unifier(mgu)) = U.unify ( U.from_eql eql ) in
+    (* for debug *)
+    let printE (U.Eq(a, b)) =
+      print_string((T.to_string a) ^ " = " ^ (T.to_string b));
+      print_endline("") in ignore (List.map printE eql);
+    (* for debug - end *)
+    let (U.Unifier(mgu)) = U.unify ( U.from_eql [] ) in (*U.unify ( U.from_eql eql ) in*)
     ( (apply_r mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
@@ -156,8 +161,6 @@ let rec infer (delta : environment) (e : expression) =
            | _ -> assert(false) (* pre-condition: integer or boolean value *)
        end
 
-
-
   and inst_intv s =
     try
       Some(int_of_string s)
@@ -166,9 +169,7 @@ let rec infer (delta : environment) (e : expression) =
 ;;
 
 
-
 (* just to test *)
-
 let eval expr : unit =
   let ty, _ = infer [] expr in
   print_string ( ( T.to_string ty ) ^ "\n");;
@@ -195,26 +196,24 @@ eval ( E.Pair( E.Const("false"), E.Const("true") ) );;*)
 (*eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;*)
 
 (* lambda *)
-eval ( E.Lambda( "x", E.Var("x") ) );;
-eval ( E.Lambda( "x", E.Pair( E.Var("x"), E.Var("x") ) ) );;
+(*eval ( E.Lambda( "x", E.Var("x") ) );;*)
+(*eval ( E.Lambda( "x", E.Pair( E.Var("x"), E.Var("x") ) ) );;*)
 
-print_string ("\nλx. x + x\n");;
-eval ( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) );;
-print_string ("\n4 + 2\n");;
-eval ( E.Apply( E.Const("+"), E.Pair( E.Const("4"), E.Const("2") ) ) );;
-print_string ("\n'+'\n");;
-eval ( E.Const("+") );;
+(*print_string ("\nλx. x + x\n");;*)
+(*eval ( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) );;*)
+(*print_string ("\n4 + 2\n");;*)
+(*eval ( E.Apply( E.Const("+"), E.Pair( E.Const("4"), E.Const("2") ) ) );;*)
 
 print_string ("\n(λx. x + x) 42\n");;
 eval ( E.Apply( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ), E.Const("42") ) );;
 
-print_string ("\n(λx.x)\n");;
+print_string ("\n(λx.x)\n");;*)
 eval ( E.Lambda( "x", E.Var("x") ) );;
 
-(*
+
 print_string ("\n(λx.x) 42\n");;
 eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;
-
+(*
 print_string ("\n(λx.x) true\n");;
 eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("true") ) );;
 
