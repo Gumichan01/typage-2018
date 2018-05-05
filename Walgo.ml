@@ -260,28 +260,18 @@ let zero    = E.Const("0") in
 let one     = E.Const("1") in
 let equalv  = E.Apply( E.Const("="), E.Pair( x, zero ) ) in
 let minus   = E.Apply( E.Const("-"), E.Pair( x, one ) ) in
-(*let recfact = E.Apply( fact, minus ) in
-let multx   = E.Apply( E.Const("*"), E.Pair( x, recfact ) ) in*)
-(*let ifx     = E.Apply( E.Const("ifthenelse") , E.Pair( equalv, E.Pair( one, multx ) ) ) in*)
-let rec lambdax = E.Lambda( "x",
-                        E.Apply( E.Const("ifthenelse"),
-                                 E.Pair( equalv,
-                                         E.Pair( one,
-                                                 E.Apply( E.Const("*"),
-                                                          E.Pair( x,
-                                                                  (E.Apply( E.Lambda( "fact",
-                                                                                      lambdax), minus
-                                                                          )
-                                                                   )
-                                                                )
-                                                         )
-                                                )
-                                        )
-                                )
-                      ) in
-let fact    = E.Lambda( "fact", lambdax) in
-let fixfact = E.Apply( E.Const("fix"), fact ) in
-eval ( E.Apply( fixfact , E.Const("3") ) );;
+let rec recfact = E.Apply( fact, minus )
+and multx   = E.Apply( E.Const("*"), E.Pair( x, recfact ) )
+and ifx     = E.Apply( E.Const("ifthenelse") , E.Pair( equalv, E.Pair( one, multx ) ) )
+and lambdax = E.Lambda( "x", ifx )
+and fact    = E.Lambda( "fact", lambdax)
+and fixfact = E.Apply( E.Const("fix"), fact ) in
+eval ( recfact );
+eval ( multx );
+eval ( ifx );
+eval ( lambdax );
+eval ( fact );
+eval ( fixfact );;
 
 
 (*
