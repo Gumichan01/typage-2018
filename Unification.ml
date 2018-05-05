@@ -254,15 +254,16 @@ let comp_sub s ( Sub(e1,e2) ) = Sub(e1, (sub s e2))
 (* for each substitution v, apply it to every elements in g *)
 let comp_map g v = List.map (comp_sub v) g
 
-let compose_unifier u1 u2 =
-  let rec comp_aux g = function
-    | [] -> g
-    | s::q -> comp_aux ( s::( comp_map g s )) q
+(* compose_unifier g f ≡ f ∘ g *)
+let compose_unifier g f =
+  let rec comp_aux g' = function
+    | [] -> g'
+    | s::q -> comp_aux ( s::( comp_map g' s )) q
   in
     begin
-        let (Unifier(g)) = u1 in
-        let (Unifier(f)) = u2 in
-        comp_aux g f    (* f ∘ g *)
+        let (Unifier(g')) = g in
+        let (Unifier(f')) = f in
+        comp_aux g' f'    (* f ∘ g *)
     end
 
 

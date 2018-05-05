@@ -47,8 +47,8 @@ type environment = (string * T.itype) list
 (*type unifier = (T.itype * T.itype) list*)
 type unifier = U.unifier
 
-(* unifier composition *)
-let cunifier u1 u2 = U.compose_unifier ( U.Unifier(u1) ) ( U.Unifier(u2) )
+(* unifier composition - f ∘ g *)
+let cunifier g f = U.compose_unifier ( U.Unifier(g) ) ( U.Unifier(f) )
 
 (*
     Substitute a type by replacing it with another type, if it can be replaced
@@ -88,7 +88,7 @@ let rec infer (delta : environment) (e : expression) =
     let sigdelta = sigma delta rhob in
     let xtype = ( V.create () ) in (* TODO function: Gen *)
     let c, rhoc = infer delta l in
-    ( c, rhoc )
+    ( c, ( cunifier rhob rhoc ) )
 
   (*
     I want to make the following calculation
