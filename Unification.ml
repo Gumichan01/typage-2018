@@ -112,8 +112,8 @@ let distinct l =
       end
     | ( Eq(a, b) )::q ->
       begin
-          print_string ( ("! " ^(T.to_string a) ^ "\n") );
-          print_string ( ("! " ^(T.to_string b) ^ "\n") );
+          print_endline ( "! " ^ ( T.to_string a ) );
+          print_endline ( "! " ^ ( T.to_string b ) );
           assert false (* pre-condition *)
       end
   in d_aux l ( Hashtbl.create (List.length l) )

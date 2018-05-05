@@ -78,7 +78,7 @@ let che = Letin("w", Cross(Int, Cross(Int, Int)), Pair(Const("1"), Pair(Var("z")
 let env = ("x","y") :: ("z","w") :: [];;
 (*let res = alpha_conv che env;;
 pretty_print_e res; print_endline("");;*) (* alpha-conversion *)
-print_string("\nFree variables \n\n");;
+print_endline("\nFree variables \n");;
 List.map (print_endline) (free_variable che);; (* free_variable *)
-print_string("\nBound variables \n\n");;
+print_endline("\nBound variables \n");;
 List.map (print_endline) (bound_variable che);; (* bound_variable *)

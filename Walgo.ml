@@ -47,7 +47,7 @@ type environment = (string * T.itype) list
 (*type unifier = (T.itype * T.itype) list*)
 type unifier = U.unifier
 
-
+(* unifier composition *)
 let cunifier u1 u2 = U.compose_unifier ( U.Unifier(u1) ) ( U.Unifier(u2) )
 
 (*
@@ -59,7 +59,9 @@ let apply_r rho a =
   | Some(t) -> t
   | None -> a
 
-
+(*
+    W-algorithm
+*)
 let rec infer (delta : environment) (e : expression) =
   match e with
   | E.Var(_) | E.Const(_) as cv -> ( inst delta cv, [] )
@@ -74,9 +76,8 @@ let rec infer (delta : environment) (e : expression) =
     let alpha = ( V.create () ) in
     let eql = [ U.Eq( (apply_r rhoc b), T.Arrow( c, alpha ) ) ] in
     (* for debug *)
-    let printE (U.Eq(a, b)) =
-      print_string((T.to_string a) ^ " = " ^ (T.to_string b));
-      print_endline("") in ignore (List.map printE eql);
+    let printE (U.Eq(a, b)) = print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) ) in
+    print_endline ("========"); ignore (List.map printE eql); print_endline ("========");
     (* for debug - end *)
     let (U.Unifier(mgu)) = U.unify ( U.from_eql [] ) in (*U.unify ( U.from_eql eql ) in*)
     ( (apply_r mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
