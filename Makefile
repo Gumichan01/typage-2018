@@ -1,12 +1,12 @@
 
 CC=ocaml
-CFLAGS=-c -g
+CFLAGS=-c -g -rectypes
 OFLAGS=-a
 
 all:
 
 ChurchType.mli: ChurchType.ml
-	ocamlc -i $< > $@
+	ocamlc -i $(CFLAGS) $< > $@
 
 ChurchType.cmi: ChurchType.mli
 	ocamlc $(CFLAGS) $<
@@ -15,7 +15,7 @@ ChurchType.cmo: ChurchType.ml ChurchType.mli ChurchType.cmi
 	ocamlc $(CFLAGS) $<
 
 Type.mli: Type.ml
-	ocamlc -i $< > $@
+	ocamlc -i $(CFLAGS) $< > $@
 
 Type.cmi: Type.mli
 	ocamlc $(CFLAGS) $<
@@ -39,7 +39,7 @@ Variable.cmo: Variable.ml Variable.mli Variable.cmi Type.cmo
 	ocamlc $(CFLAGS) $<
 
 Unification.mli: Unification.ml
-	ocamlc -i $< > $@
+	ocamlc -i $(CFLAGS) $< > $@
 
 Unification.cmi: Unification.mli Type.cmo
 	ocamlc $(CFLAGS) $<
@@ -48,7 +48,7 @@ Unification.cmo: Unification.ml Unification.mli Unification.cmi Type.cmo
 	ocamlc $(CFLAGS) $<
 
 Walgo.mli: Walgo.ml Unification.cmo Expression.cmo Type.cmo
-	ocamlc -i $< > $@
+	ocamlc -i $(CFLAGS) $< > $@
 
 Walgo.cmi: Walgo.mli
 	ocamlc $(CFLAGS) $<
