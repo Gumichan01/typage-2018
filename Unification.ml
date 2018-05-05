@@ -30,6 +30,14 @@ exception OccursCheck
 exception Conflict
 
 
+(* debug *)
+let print_debug l =
+  let printE (Eq(a, b)) =
+    print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) )
+  in
+    print_endline ("========"); ignore (List.map printE l); print_endline ("========")
+
+
 let to_eql ( System(eql) ) = eql
 let from_eql eql = System(eql)
 
@@ -156,10 +164,6 @@ let unify slist : unifier =
     print_endline ("equation system erase");print_debug eel;
     List.map check eel
 
-  and print_debug l =
-    let printE (Eq(a, b)) = print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) ) in
-    print_endline ("========"); ignore (List.map printE l); print_endline ("========");
-
   and erase l =
     let rec aux_erase sl res =
       match sl with
@@ -168,26 +172,23 @@ let unify slist : unifier =
       | h::q -> aux_erase q (h::res)
     in aux_erase l []
 
-  and eliminate l = (*print_endline ("\nelim");print_debug l;*) eliminate_aux l l
+  and eliminate l = eliminate_aux l l
 
   and eliminate_aux g = function
     | [] -> []
-    | ( Eq(a, t) )::q when (is_variable a) (*&& not(is_variable t)*) ->
+    | ( Eq(a, t) )::q when (is_variable a) ->
       begin
         let eq = Eq(a, t) in
         let s  = Sub(a, t) in
         let ng = system_without_subs s g in (* E \ { a ← t } *)
         if not(vars a t) && (varsl a ng) then
           begin
-            (*print_string("| ");ignore (List.map ( (fun (Eq(a, b)) -> print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) ) ) ) [eq]);*)
             eliminate ( eq :: (substitute_all s ng) ) (* E' U { a = t } *)
           end
         else
-          begin
-              (*print_endline("continue 1");*) ( Eq(a, t) ) :: (eliminate_aux q q)
-          end
+          ( Eq(a, t) ) :: (eliminate_aux q q)
       end
-    | h::q -> (*print_endline("continue 2");*) h :: (eliminate_aux q q)
+    | h::q -> h :: (eliminate_aux q q)
 
   and swap l =
     let rec aux_swap sl res =
@@ -275,9 +276,7 @@ let rec to_string = function
   | T.Tvar(s) -> s
 
 
-let printI (Sub(a, b)) =
-  print_string((to_string a) ^ "/" ^ (to_string b));
-  print_endline("");;
+let printI (Sub(a, b)) = print_endline((to_string a) ^ "/" ^ (to_string b));;
 
 
 let s =
@@ -290,7 +289,7 @@ let (Unifier(res)) = unify (from_eql s);;
 List.map printI res;;
 
 compose_unifier ( Unifier([]) ) ( Unifier([]) );;
-print_string("composition \n");;
+print_endline("composition ");;
 let g = [ Sub((T.Tvar("α5"), T.Tvar("α4"))); Sub((T.Tvar("α6"), T.Tvar("α2"))) ];;
 
 let res2 = compose_unifier ( Unifier(g) ) ( Unifier(res) ) in
