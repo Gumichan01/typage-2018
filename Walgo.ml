@@ -133,6 +133,9 @@ let rec infer (delta : environment) (e : expression) =
            match x with
            | "true" | "false" -> T.Bool
            | "+" | "-" | "*" | "/" -> T.Arrow( T.Cross( T.Int, T.Int ), T.Int )
+           | "=" | "!=" | "<" | ">" | "<=" | ">=" -> T.Arrow( T.Cross( T.Int, T.Int ), T.Bool )
+           | "and" | "or" | "xor" -> T.Arrow( T.Cross( T.Bool, T.Bool ), T.Bool )
+           | "not" -> T.Arrow( T.Bool, T.Bool )
            | "fst" ->
              begin
                let a1 = ( V.create () ) in
@@ -179,54 +182,56 @@ let eval expr : unit =
 (* tests *)
 
 (* constant values *)
-print_endline ("> 42");;
+(*print_endline ("> 42");;
 eval ( E.Const("42") );;
 
 print_endline ("\n> true and false");;
 eval ( E.Const("true") );;
-eval ( E.Const("false") );;
+eval ( E.Const("false") );;*)
 
+(*
 print_endline ("\n> + | fst | snd | ifthenelse | fix");;
 eval ( E.Const("+") );;
 eval ( E.Const("fst") );;
 eval ( E.Const("snd") );;
 eval ( E.Const("ifthenelse") );;
-eval ( E.Const("fix") );;
+eval ( E.Const("fix") );;*)
 
 (* pairs *)
-print_endline ("\n> pairs");;
+(*print_endline ("\n> pairs");;
 let p1 = E.Pair( E.Const("42"), E.Const("42") );;
 let p2 = E.Pair( E.Const("42"), E.Const("true"));;
 eval ( p1 );;
 eval ( p2 );;
 eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), p2 ) ) );;
-eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), p1 ) );;
+eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), p1 ) );;*)
 
 (* lambda *)
-print_endline ("\n> λx. x + x");;
-eval ( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) );;
+(*print_endline ("\n> λx. x + x");;
+let splus = E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) );;
+eval ( splus );;
 
 print_endline ("\n> (λx. x + x) 42");;
-eval ( E.Apply( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ), E.Const("42") ) );;
+eval ( E.Apply( E.Lambda( "x", splus ), E.Const("42") ) );;*)
 
 (* identity *)
-print_endline ("\n> (λx.x)");;
+(*print_endline ("\n> (λx.x)");;
 eval ( E.Lambda( "x", E.Var("x") ) );;
 
 print_endline ("\n> (λx.x) 42");;
-eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;
+eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;*)
 
-let id_fun = E.Apply( E.Lambda( "x", E.Var("x") ),
+(*let id_fun = E.Apply( E.Lambda( "x", E.Var("x") ),
                       E.Lambda( "y", E.Apply( E.Const("+"),
                                               E.Pair( E.Var("y"), E.Var("y") ) ) ) ) in
 
 print_endline ("\n> (λx.x) (λy. y + y)");
 eval ( id_fun );
 print_endline ("\n> (λx.x) (λy. y + y) 42");
-eval ( E.Apply( id_fun, E.Const("42") ) );;
+eval ( E.Apply( id_fun, E.Const("42") ) );;*)
 
 (* addition *)
-print_endline ("\n> λx.λy. x + y ");;
+(*print_endline ("\n> λx.λy. x + y ");;
 let fplus       = E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("y") ) ) in
 let fsum        = E.Lambda( "x", ( E.Lambda( "y", fplus ) ) ) in
 let partial_sum = E.Apply( fsum, E.Const("42") ) in
@@ -234,10 +239,10 @@ eval ( fsum );
 print_endline ("\n> (λx.λy. x + y ) 42");
 eval ( partial_sum );
 print_endline ("\n> (λx.λy. x + y ) 42 1");
-eval ( E.Apply( partial_sum , E.Const("1") ) );;
+eval ( E.Apply( partial_sum , E.Const("1") ) );;*)
 
 (* if-then-else *)
-let one = E.Const("1") in
+(*let one = E.Const("1") in
 let two = E.Const("2") in
 let autoplus = E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) in
 let apif = E.Apply( E.Const("ifthenelse") , E.Pair( E.Const("true") , E.Pair( one, two ) ) ) in
@@ -247,9 +252,37 @@ eval ( E.Const("ifthenelse") );
 print_endline ("\n> if true then 1 else 2");
 eval ( apif );
 print_endline ("\n> (if true then 1 else 2) + 1");
-eval ( E.Apply( autoplus, apif ) );;
+eval ( E.Apply( autoplus, apif ) );;*)
 
 (* factorial *)
+let x       = E.Var("x") in
+let zero    = E.Const("0") in
+let one     = E.Const("1") in
+let equalv  = E.Apply( E.Const("="), E.Pair( x, zero ) ) in
+let minus   = E.Apply( E.Const("-"), E.Pair( x, one ) ) in
+(*let recfact = E.Apply( fact, minus ) in
+let multx   = E.Apply( E.Const("*"), E.Pair( x, recfact ) ) in*)
+(*let ifx     = E.Apply( E.Const("ifthenelse") , E.Pair( equalv, E.Pair( one, multx ) ) ) in*)
+let rec lambdax = E.Lambda( "x",
+                        E.Apply( E.Const("ifthenelse"),
+                                 E.Pair( equalv,
+                                         E.Pair( one,
+                                                 E.Apply( E.Const("*"),
+                                                          E.Pair( x,
+                                                                  (E.Apply( E.Lambda( "fact",
+                                                                                      lambdax), minus
+                                                                          )
+                                                                   )
+                                                                )
+                                                         )
+                                                )
+                                        )
+                                )
+                      ) in
+let fact    = E.Lambda( "fact", lambdax) in
+let fixfact = E.Apply( E.Const("fix"), fact ) in
+eval ( E.Apply( fixfact , E.Const("3") ) );;
+
 
 (*
     Comment:
