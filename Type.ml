@@ -34,6 +34,8 @@ end
 let rec gen_type = function
   | Tvar(_) as tv -> tv
 
+  | Bool | Int -> ( V.create () )
+
   | Arrow( Int, Int )  | Arrow( Bool, Bool ) ->
     let a = ( V.create () ) in Arrow( a, a )
 
