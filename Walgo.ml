@@ -207,7 +207,7 @@ eval ( E.Pair( E.Const("false"), E.Const("true") ) );;*)
 print_string ("\n(λx. x + x) 42\n");;
 eval ( E.Apply( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ), E.Const("42") ) );;
 
-print_string ("\n(λx.x)\n");;*)
+print_string ("\n(λx.x)\n");;
 eval ( E.Lambda( "x", E.Var("x") ) );;
 
 
