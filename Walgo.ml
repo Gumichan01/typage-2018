@@ -73,20 +73,20 @@ let rec infer (delta : environment) (e : expression) =
   | E.Apply(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
-    let alpha = ( V.create () ) in
+    let alpha = ( T.V.create () ) in
     let eql = [ U.Eq( (substype rhoc b), T.Arrow( c, alpha ) ) ] in
     let (U.Unifier(mgu)) = U.unify ( U.from_eql eql ) in
     ( (substype mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
-    let fresh_alpha =  ( V.create () ) in
+    let fresh_alpha =  ( T.V.create () ) in
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
     ( T.Arrow( ( substype rho fresh_alpha), b ), rho ) (* change it *)
 
   | E.Letin(x, n, l) -> (*failwith "TODO W-algorithm: Letin"*)
     let b, rhob = infer delta n in
     let sigdelta = sigma delta rhob in
-    let xtype = ( V.create () ) in (* TODO function: Gen *)
+    let xtype = ( T.V.create () ) in (* TODO function: Gen *)
     let c, rhoc = infer ( ( x, xtype) :: sigdelta) l in
     ( c, ( cunifier rhob rhoc ) )
 
@@ -139,27 +139,27 @@ let rec infer (delta : environment) (e : expression) =
            | "not" -> T.Arrow( T.Bool, T.Bool )
            | "fst" ->
              begin
-               let a1 = ( V.create () ) in
-               let a2 = ( V.create () ) in
+               let a1 = ( T.V.create () ) in
+               let a2 = ( T.V.create () ) in
                T.Arrow( T.Cross( a1, a2 ), a1 )
              end
 
            | "snd" ->
              begin
-               let a1 = ( V.create () ) in
-               let a2 = ( V.create () ) in
+               let a1 = ( T.V.create () ) in
+               let a2 = ( T.V.create () ) in
                T.Arrow( T.Cross( a1, a2 ), a2 )
              end
 
            | "ifthenelse" ->
               begin
-                let a = ( V.create () ) in
+                let a = ( T.V.create () ) in
                 T.Arrow( T.Cross( T.Bool, T.Cross( a, a) ), a )
               end
 
            | "fix" ->
              begin
-               let a = ( V.create () ) in
+               let a = ( T.V.create () ) in
                T.Arrow( T.Cross( a, a), a )
              end
 
