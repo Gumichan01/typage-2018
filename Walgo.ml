@@ -87,7 +87,7 @@ let rec infer (delta : environment) (e : expression) =
     let b, rhob = infer delta n in
     let sigdelta = sigma delta rhob in
     let xtype = ( V.create () ) in (* TODO function: Gen *)
-    let c, rhoc = infer delta l in
+    let c, rhoc = infer ( ( x, xtype) :: sigdelta) l in
     ( c, ( cunifier rhob rhoc ) )
 
   (*
