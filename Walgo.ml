@@ -195,26 +195,21 @@ eval ( E.Const("fix") );;
 
 (* pairs *)
 print_endline ("\n> pairs");;
-eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
-eval ( E.Pair( E.Const("42"), E.Const("true") ) );;
-eval ( E.Pair( E.Const("false"), E.Const("42") ) );;
-eval ( E.Pair( E.Const("false"), E.Const("true") ) );;
-
-eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), E.Pair( E.Const("false"), E.Const("true") ) ) ) );;
-eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;
+let p1 = E.Pair( E.Const("42"), E.Const("42") );;
+let p2 = E.Pair( E.Const("42"), E.Const("true"));;
+eval ( p1 );;
+eval ( p2 );;
+eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), p2 ) ) );;
+eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), p1 ) );;
 
 (* lambda *)
-(*eval ( E.Lambda( "x", E.Var("x") ) );;*)
-(*eval ( E.Lambda( "x", E.Pair( E.Var("x"), E.Var("x") ) ) );;*)
-
 print_endline ("\n> λx. x + x");;
 eval ( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) );;
-print_endline ("\n> 4 + 2");;
-eval ( E.Apply( E.Const("+"), E.Pair( E.Const("4"), E.Const("2") ) ) );;
 
 print_endline ("\n> (λx. x + x) 42");;
 eval ( E.Apply( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ), E.Const("42") ) );;
 
+(* identity *)
 print_endline ("\n> (λx.x)");;
 eval ( E.Lambda( "x", E.Var("x") ) );;
 
@@ -223,15 +218,15 @@ eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;
 
 let id_fun = E.Apply( E.Lambda( "x", E.Var("x") ),
                       E.Lambda( "y", E.Apply( E.Const("+"),
-                                              E.Pair( E.Var("y"), E.Var("y") ) ) ) );;
+                                              E.Pair( E.Var("y"), E.Var("y") ) ) ) ) in
 
-print_endline ("\n> (λx.x) (λy. y + y)");;
-eval ( id_fun );;
-
-print_endline ("\n> (λx.x) (λy. y + y) 42");;
+print_endline ("\n> (λx.x) (λy. y + y)");
+eval ( id_fun );
+print_endline ("\n> (λx.x) (λy. y + y) 42");
 eval ( E.Apply( id_fun, E.Const("42") ) );;
 
-print_endline ("\n> (λx.λy. x + y )");;
+(* addition *)
+print_endline ("\n> λx.λy. x + y ");;
 let fplus       = E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("y") ) ) in
 let fsum        = E.Lambda( "x", ( E.Lambda( "y", fplus ) ) ) in
 let partial_sum = E.Apply( fsum, E.Const("42") ) in
@@ -240,6 +235,21 @@ print_endline ("\n> (λx.λy. x + y ) 42");
 eval ( partial_sum );
 print_endline ("\n> (λx.λy. x + y ) 42 1");
 eval ( E.Apply( partial_sum , E.Const("1") ) );;
+
+(* if-then-else *)
+let one = E.Const("1") in
+let two = E.Const("2") in
+let autoplus = E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) in
+let apif = E.Apply( E.Const("ifthenelse") , E.Pair( E.Const("true") , E.Pair( one, two ) ) ) in
+
+print_endline ("\n> if-then-else ");
+eval ( E.Const("ifthenelse") );
+print_endline ("\n> if true then 1 else 2");
+eval ( apif );
+print_endline ("\n> (if true then 1 else 2) + 1");
+eval ( E.Apply( autoplus, apif ) );;
+
+(* factorial *)
 
 (*
     Comment:
