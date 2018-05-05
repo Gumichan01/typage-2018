@@ -12,4 +12,3 @@ module V :
     val equal : 'a -> 'a -> bool
     val create : unit -> itype
   end
-val free_variable : itype -> itype

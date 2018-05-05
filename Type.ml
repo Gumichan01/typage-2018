@@ -30,26 +30,36 @@ module V = struct
   let create = let r = ref 0 in fun () -> incr r; Tvar("α" ^ string_of_int(!r))
 end
 
-let rec free_variable = function
+
+let rec gen_type = function
   | Tvar(_) as tv -> tv
 
-  | Arrow( Int, Int )  | Arrow( Bool, Bool )
-  | Arrow( Int, Bool ) | Arrow( Bool, Int )
-  | Cross( Int, Int )  | Cross( Bool, Bool )
-  | Cross( Int, Bool ) | Cross( Bool, Int ) as ty -> ty
+  | Arrow( Int, Int )  | Arrow( Bool, Bool ) ->
+    let a = ( V.create () ) in Arrow( a, a )
 
-  | Arrow( Int, y )  -> Arrow( Int, (free_variable y) )
-  | Arrow( Bool, y ) -> Arrow( Bool, (free_variable y) )
-  | Arrow( x, Int )  -> Arrow( (free_variable x), Int )
-  | Arrow( x, Bool ) -> Arrow( (free_variable x), Bool )
+  | Arrow( Int, Bool ) | Arrow( Bool, Int ) ->
+    let a = ( V.create () ) in
+    let b = ( V.create () ) in
+    Arrow( a, b )
 
-  | Arrow( x, y ) -> Arrow( (free_variable x), (free_variable y) )
+  | Arrow( Int, y )  -> Arrow( Int, (gen_type y) )
+  | Arrow( Bool, y ) -> Arrow( Bool, (gen_type y) )
+  | Arrow( x, Int )  -> Arrow( (gen_type x), Int )
+  | Arrow( x, Bool ) -> Arrow( (gen_type x), Bool )
 
-  | Cross( Int, y )  -> Cross( Int, (free_variable y) )
-  | Cross( Bool, y ) -> Cross( Bool, (free_variable y) )
-  | Cross( x, Int )  -> Cross( (free_variable x), Int )
-  | Cross( x, Bool ) -> Cross( (free_variable x), Bool )
+  | Arrow( x, y ) -> Arrow( (gen_type x), (gen_type y) )
 
-  | Cross( x, y ) -> Cross( (free_variable x), (free_variable y) )
+  | Cross( Int, Int )  | Cross( Bool, Bool ) ->
+    let a = ( V.create () ) in Cross( a, a )
 
-  | _ -> assert false (* Int and Bool are not variables *)
+  | Cross( Int, Bool ) | Cross( Bool, Int ) as ty ->
+    let a = ( V.create () ) in
+    let b = ( V.create () ) in
+    Cross( a, b )
+
+  | Cross( Int, y )  -> Cross( Int, (gen_type y) )
+  | Cross( Bool, y ) -> Cross( Bool, (gen_type y) )
+  | Cross( x, Int )  -> Cross( (gen_type x), Int )
+  | Cross( x, Bool ) -> Cross( (gen_type x), Bool )
+
+  | Cross( x, y ) -> Cross( (gen_type x), (gen_type y) )
