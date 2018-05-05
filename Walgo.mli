@@ -1,17 +1,6 @@
 module T = Type
 module E = Expression
 module U = Unification
-module V :
-  sig
-    type t = string
-    val compare : 'a -> 'a -> int
-    val equal : 'a -> 'a -> bool
-    val create : unit -> T.itype
-  end
-val math_ops : string list
-val bool_ops : string list
-val math_basictype : T.itype
-val bool_basictype : T.itype
 type expression = E.t
 val lassoc_opt : 'a -> ('a * 'b) list -> 'b option
 val from_sblist : U.substitution list -> (U.T.itype * U.T.itype) list

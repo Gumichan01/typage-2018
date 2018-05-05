@@ -47,6 +47,10 @@ let substype rho a =
   | Some(t) -> t
   | None -> a
 
+
+(*let rec gen ty delta =
+  let ntype = T.gen_type ty in*)
+
 (*
     W-algorithm
 *)
