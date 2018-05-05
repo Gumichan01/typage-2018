@@ -7,6 +7,7 @@ exception RecursiveType
 exception TypeMismatch
 exception OccursCheck
 exception Conflict
+val print_debug : equation list -> unit
 val to_eql : system -> equation list
 val from_eql : equation list -> system
 val is_variable : T.itype -> bool
