@@ -30,4 +30,26 @@ module V = struct
   let create = let r = ref 0 in fun () -> incr r; Tvar("α" ^ string_of_int(!r))
 end
 
-(*let free_variable = function*)
+let rec free_variable = function
+  | Tvar(_) as tv -> tv
+
+  | Arrow( Int, Int )  | Arrow( Bool, Bool )
+  | Arrow( Int, Bool ) | Arrow( Bool, Int )
+  | Cross( Int, Int )  | Cross( Bool, Bool )
+  | Cross( Int, Bool ) | Cross( Bool, Int ) as ty -> ty
+
+  | Arrow( Int, y )  -> Arrow( Int, (free_variable y) )
+  | Arrow( Bool, y ) -> Arrow( Bool, (free_variable y) )
+  | Arrow( x, Int )  -> Arrow( (free_variable x), Int )
+  | Arrow( x, Bool ) -> Arrow( (free_variable x), Bool )
+
+  | Arrow( x, y ) -> Arrow( (free_variable x), (free_variable y) )
+
+  | Cross( Int, y )  -> Cross( Int, (free_variable y) )
+  | Cross( Bool, y ) -> Cross( Bool, (free_variable y) )
+  | Cross( x, Int )  -> Cross( (free_variable x), Int )
+  | Cross( x, Bool ) -> Cross( (free_variable x), Bool )
+
+  | Cross( x, y ) -> Cross( (free_variable x), (free_variable y) )
+
+  | _ -> assert false (* Int and Bool are not variables *)
