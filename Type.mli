@@ -12,3 +12,4 @@ module V :
     val equal : 'a -> 'a -> bool
     val create : unit -> itype
   end
+val gen_type : itype -> itype
