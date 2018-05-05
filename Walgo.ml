@@ -70,16 +70,12 @@ let rec infer (delta : environment) (e : expression) =
     let c, rhoc = infer ( sigma delta rhob ) l in
     ( T.Cross( (apply_r rhoc b), c ), ( cunifier rhob rhoc ) )
 
-  | E.Apply(n, l) -> (*failwith "TODO W-algorithm: Apply"*)
+  | E.Apply(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
     let alpha = ( V.create () ) in
     let eql = [ U.Eq( (apply_r rhoc b), T.Arrow( c, alpha ) ) ] in
-    (* for debug
-    let printE (U.Eq(a, b)) = print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) ) in
-    print_endline ("========"); ignore (List.map printE eql); print_endline ("========");
-    for debug - end *)
-    let (U.Unifier(mgu)) = (*U.unify ( U.from_eql [] ) in*) U.unify ( U.from_eql eql ) in
+    let (U.Unifier(mgu)) = U.unify ( U.from_eql eql ) in
     ( (apply_r mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
@@ -87,7 +83,12 @@ let rec infer (delta : environment) (e : expression) =
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
     ( T.Arrow( ( apply_r rho fresh_alpha), b ), rho ) (* change it *)
 
-  | E.Letin(_,_,_) -> failwith "TODO W-algorithm: Letin"
+  | E.Letin(x, n, l) -> (*failwith "TODO W-algorithm: Letin"*)
+    let b, rhob = infer delta n in
+    let sigdelta = sigma delta rhob in
+    let xtype = ( V.create () ) in (* TODO function: Gen *)
+    let c, rhoc = infer delta l in
+    ( c, rhoc )
 
   (*
     I want to make the following calculation
@@ -254,8 +255,8 @@ eval ( apif );
 print_endline ("\n> (if true then 1 else 2) + 1");
 eval ( E.Apply( autoplus, apif ) );;*)
 
-(* factorial *)
-let x       = E.Var("x") in
+(* factorial - it doesn't work!!! *)
+(*let x       = E.Var("x") in
 let zero    = E.Const("0") in
 let one     = E.Const("1") in
 let equalv  = E.Apply( E.Const("="), E.Pair( x, zero ) ) in
@@ -266,12 +267,7 @@ and ifx     = E.Apply( E.Const("ifthenelse") , E.Pair( equalv, E.Pair( one, mult
 and lambdax = E.Lambda( "x", ifx )
 and fact    = E.Lambda( "fact", lambdax)
 and fixfact = E.Apply( E.Const("fix"), fact ) in
-eval ( recfact );
-eval ( multx );
-eval ( ifx );
-eval ( lambdax );
-eval ( fact );
-eval ( fixfact );;
+eval ( fixfact );;*)
 
 
 (*
