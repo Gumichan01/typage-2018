@@ -54,7 +54,7 @@ let cunifier u1 u2 = U.compose_unifier ( U.Unifier(u1) ) ( U.Unifier(u2) )
     Substitute a type by replacing it with another type, if it can be replaced
     returns the argument itself otherwise
  *)
-let apply_r rho a =
+let substype rho a =
   match ( lassoc_opt a ( from_sblist rho ) ) with
   | Some(t) -> t
   | None -> a
@@ -68,20 +68,20 @@ let rec infer (delta : environment) (e : expression) =
   | E.Pair(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
-    ( T.Cross( (apply_r rhoc b), c ), ( cunifier rhob rhoc ) )
+    ( T.Cross( (substype rhoc b), c ), ( cunifier rhob rhoc ) )
 
   | E.Apply(n, l) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
     let alpha = ( V.create () ) in
-    let eql = [ U.Eq( (apply_r rhoc b), T.Arrow( c, alpha ) ) ] in
+    let eql = [ U.Eq( (substype rhoc b), T.Arrow( c, alpha ) ) ] in
     let (U.Unifier(mgu)) = U.unify ( U.from_eql eql ) in
-    ( (apply_r mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
+    ( (substype mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
     let fresh_alpha =  ( V.create () ) in
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
-    ( T.Arrow( ( apply_r rho fresh_alpha), b ), rho ) (* change it *)
+    ( T.Arrow( ( substype rho fresh_alpha), b ), rho ) (* change it *)
 
   | E.Letin(x, n, l) -> (*failwith "TODO W-algorithm: Letin"*)
     let b, rhob = infer delta n in
@@ -274,7 +274,7 @@ eval ( fixfact );;*)
     Comment:
 
     - (DOING final goal) Apply the algorithm for each element of type chtype (an expression).
-      (DONE) apply_r a type by another using the substitution
+      (DONE) substype a type by another using the substitution
       (DONE) σ₁ o σ₂ function
     - (DONE) Unification
     - (DONE) Free and bound variables
