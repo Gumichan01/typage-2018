@@ -54,7 +54,7 @@ let rec gen_type = function
   | Cross( Int, Int )  | Cross( Bool, Bool ) ->
     let a = ( V.create () ) in Cross( a, a )
 
-  | Cross( Int, Bool ) | Cross( Bool, Int ) as ty ->
+  | Cross( Int, Bool ) | Cross( Bool, Int ) ->
     let a = ( V.create () ) in
     let b = ( V.create () ) in
     Cross( a, b )
