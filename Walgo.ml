@@ -75,11 +75,11 @@ let rec infer (delta : environment) (e : expression) =
     let c, rhoc = infer ( sigma delta rhob ) l in
     let alpha = ( V.create () ) in
     let eql = [ U.Eq( (apply_r rhoc b), T.Arrow( c, alpha ) ) ] in
-    (* for debug *)
+    (* for debug
     let printE (U.Eq(a, b)) = print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) ) in
     print_endline ("========"); ignore (List.map printE eql); print_endline ("========");
-    (* for debug - end *)
-    let (U.Unifier(mgu)) = U.unify ( U.from_eql [] ) in (*U.unify ( U.from_eql eql ) in*)
+    for debug - end *)
+    let (U.Unifier(mgu)) = (*U.unify ( U.from_eql [] ) in*) U.unify ( U.from_eql eql ) in
     ( (apply_r mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
 
   | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
@@ -173,62 +173,81 @@ let rec infer (delta : environment) (e : expression) =
 (* just to test *)
 let eval expr : unit =
   let ty, _ = infer [] expr in
-  print_string ( ( T.to_string ty ) ^ "\n");;
+  print_endline ( T.to_string ty );;
 
 
 (* tests *)
 
 (* constant values *)
-(*eval ( E.Const("42") );;
+print_endline ("> 42");;
+eval ( E.Const("42") );;
+
+print_endline ("\n> true and false");;
 eval ( E.Const("true") );;
-eval ( E.Const("false") );;*)
-(*eval ( E.Const("+") );;
+eval ( E.Const("false") );;
+
+print_endline ("\n> + | fst | snd | ifthenelse | fix");;
+eval ( E.Const("+") );;
 eval ( E.Const("fst") );;
 eval ( E.Const("snd") );;
 eval ( E.Const("ifthenelse") );;
-eval ( E.Const("fix") );;*)
+eval ( E.Const("fix") );;
+
 (* pairs *)
-(*eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
+print_endline ("\n> pairs");;
+eval ( E.Pair( E.Const("42"), E.Const("42") ) );;
 eval ( E.Pair( E.Const("42"), E.Const("true") ) );;
 eval ( E.Pair( E.Const("false"), E.Const("42") ) );;
-eval ( E.Pair( E.Const("false"), E.Const("true") ) );;*)
+eval ( E.Pair( E.Const("false"), E.Const("true") ) );;
 
-(*eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), E.Pair( E.Const("false"), E.Const("true") ) ) ) );;*)
-(*eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;*)
+eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), E.Pair( E.Const("false"), E.Const("true") ) ) ) );;
+eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), E.Pair( E.Const("42"), E.Const("42") ) ) );;
 
 (* lambda *)
 (*eval ( E.Lambda( "x", E.Var("x") ) );;*)
 (*eval ( E.Lambda( "x", E.Pair( E.Var("x"), E.Var("x") ) ) );;*)
 
-(*print_string ("\nλx. x + x\n");;*)
-(*eval ( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) );;*)
-(*print_string ("\n4 + 2\n");;*)
-(*eval ( E.Apply( E.Const("+"), E.Pair( E.Const("4"), E.Const("2") ) ) );;*)
+print_endline ("\n> λx. x + x");;
+eval ( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) );;
+print_endline ("\n> 4 + 2");;
+eval ( E.Apply( E.Const("+"), E.Pair( E.Const("4"), E.Const("2") ) ) );;
 
-print_string ("\n(λx. x + x) 42\n");;
+print_endline ("\n> (λx. x + x) 42");;
 eval ( E.Apply( E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ), E.Const("42") ) );;
 
-print_string ("\n(λx.x)\n");;
+print_endline ("\n> (λx.x)");;
 eval ( E.Lambda( "x", E.Var("x") ) );;
 
-
-print_string ("\n(λx.x) 42\n");;
+print_endline ("\n> (λx.x) 42");;
 eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;
-(*
-print_string ("\n(λx.x) true\n");;
-eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("true") ) );;
 
-print_string ("\n(λx.x) (λy. y + y)\n");;
-eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Lambda( "y", E.Apply( E.Const("+"), E.Pair( E.Var("y"), E.Var("y") ) ) ) ) );;*)
+let id_fun = E.Apply( E.Lambda( "x", E.Var("x") ),
+                      E.Lambda( "y", E.Apply( E.Const("+"),
+                                              E.Pair( E.Var("y"), E.Var("y") ) ) ) );;
+
+print_endline ("\n> (λx.x) (λy. y + y)");;
+eval ( id_fun );;
+
+print_endline ("\n> (λx.x) (λy. y + y) 42");;
+eval ( E.Apply( id_fun, E.Const("42") ) );;
+
+print_endline ("\n> (λx.λy. x + y )");;
+let fplus       = E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("y") ) ) in
+let fsum        = E.Lambda( "x", ( E.Lambda( "y", fplus ) ) ) in
+let partial_sum = E.Apply( fsum, E.Const("42") ) in
+eval ( fsum );
+print_endline ("\n> (λx.λy. x + y ) 42");
+eval ( partial_sum );
+print_endline ("\n> (λx.λy. x + y ) 42 1");
+eval ( E.Apply( partial_sum , E.Const("1") ) );;
 
 (*
     Comment:
 
-    - (TODO final goal) Apply the algorithm for each element of type chtype (an expression).
+    - (DOING final goal) Apply the algorithm for each element of type chtype (an expression).
       (DONE) apply_r a type by another using the substitution
       (DONE) σ₁ o σ₂ function
     - (DONE) Unification
     - (DONE) Free and bound variables
-    - (TODO) α-conversion
 
 *)
