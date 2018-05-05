@@ -48,8 +48,8 @@ let substype rho a =
   | None -> a
 
 
-(*let rec gen ty delta =
-  let ntype = T.gen_type ty in*)
+let rec gen ty delta = ignore(delta); T.gen_type ty
+
 
 (*
     W-algorithm
