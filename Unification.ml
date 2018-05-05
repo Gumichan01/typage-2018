@@ -144,6 +144,22 @@ let unify slist : unifier =
 
   and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
+  and process_debug l =
+    let dl = decompose l in
+    let sl = swap dl in
+    let el = eliminate sl in
+    let eel = erase el in
+    print_endline ("equation system input");print_debug l;
+    print_endline ("equation system decomp"); print_debug dl;
+    print_endline ("equation system swap");print_debug sl;
+    print_endline ("equation system eliminate ");print_debug el;
+    print_endline ("equation system erase");print_debug eel;
+    List.map check eel
+
+  and print_debug l =
+    let printE (Eq(a, b)) = print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) ) in
+    print_endline ("========"); ignore (List.map printE l); print_endline ("========");
+
   and erase l =
     let rec aux_erase sl res =
       match sl with
@@ -152,23 +168,26 @@ let unify slist : unifier =
       | h::q -> aux_erase q (h::res)
     in aux_erase l []
 
-  and eliminate l = eliminate_aux l l
+  and eliminate l = (*print_endline ("\nelim");print_debug l;*) eliminate_aux l l
 
   and eliminate_aux g = function
     | [] -> []
-    | ( Eq(a, t) )::q when (is_variable a) ->
+    | ( Eq(a, t) )::q when (is_variable a) (*&& not(is_variable t)*) ->
       begin
         let eq = Eq(a, t) in
         let s  = Sub(a, t) in
         let ng = system_without_subs s g in (* E \ { a ← t } *)
         if not(vars a t) && (varsl a ng) then
           begin
+            (*print_string("| ");ignore (List.map ( (fun (Eq(a, b)) -> print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) ) ) ) [eq]);*)
             eliminate ( eq :: (substitute_all s ng) ) (* E' U { a = t } *)
           end
         else
-          ( Eq(a, t) ) :: (eliminate_aux g q)
+          begin
+              (*print_endline("continue 1");*) ( Eq(a, t) ) :: (eliminate_aux q q)
+          end
       end
-    | h::q -> h :: (eliminate_aux g q)
+    | h::q -> (*print_endline("continue 2");*) h :: (eliminate_aux q q)
 
   and swap l =
     let rec aux_swap sl res =
