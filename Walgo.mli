@@ -9,6 +9,7 @@ type unifier = U.unifier
 val cunifier :
   U.substitution list -> U.substitution list -> U.substitution list
 val substype : U.substitution list -> U.T.itype -> U.T.itype
+val gen : T.itype -> 'a -> T.itype
 val infer : environment -> expression -> T.itype * U.substitution list
 val sigma : environment -> U.substitution list -> environment
 val sigma_in : environment -> U.substitution list -> environment

@@ -70,15 +70,15 @@ let rec infer (delta : environment) (e : expression) =
     let (U.Unifier(mgu)) = U.unify ( U.from_eql eql ) in
     ( (substype mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
 
-  | E.Lambda(x, n) -> (*failwith "TODO W-algorithm: Lambda"*)
+  | E.Lambda(x, n) ->
     let fresh_alpha =  ( T.V.create () ) in
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
     ( T.Arrow( ( substype rho fresh_alpha), b ), rho ) (* change it *)
 
-  | E.Letin(x, n, l) -> (*failwith "TODO W-algorithm: Letin"*)
+  | E.Letin(x, n, l) ->
     let b, rhob = infer delta n in
     let sigdelta = sigma delta rhob in
-    let xtype = ( T.V.create () ) in (* TODO function: Gen *)
+    let xtype = gen b sigdelta in (* NOTE function: Gen ??? *)
     let c, rhoc = infer ( ( x, xtype) :: sigdelta) l in
     ( c, ( cunifier rhob rhoc ) )
 
@@ -234,6 +234,11 @@ eval ( partial_sum );
 print_endline ("\n> (λx.λy. x + y ) 42 1");
 eval ( E.Apply( partial_sum , E.Const("1") ) );;*)
 
+print_endline ("\n> let f = λx.x in f 2");
+let lambdaf = E.Lambda( "x", E.Var("x") ) in
+let apply_f = E.Apply( lambdaf, E.Const("2") ) in
+eval ( E.Letin( "f", lambdaf, apply_f ) );
+
 (* if-then-else *)
 (*let one = E.Const("1") in
 let two = E.Const("2") in
@@ -259,7 +264,7 @@ and ifx     = E.Apply( E.Const("ifthenelse") , E.Pair( equalv, E.Pair( one, mult
 and lambdax = E.Lambda( "x", ifx )
 and fact    = E.Lambda( "fact", lambdax)
 and fixfact = E.Apply( E.Const("fix"), fact ) in
-eval ( fixfact );;*)
+eval ( E.Apply(fact, E.Const("3") ) );;*)
 
 
 (*
