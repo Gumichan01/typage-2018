@@ -11,18 +11,6 @@ module T = Type
 module E = Expression
 module U = Unification
 
-module V = struct
-  type t = string
-  let compare v1 v2 = Pervasives.compare v1 v2
-  let equal v1 v2 = v1 = v2
-  let create = let r = ref 0 in fun () -> incr r; T.Tvar("α" ^ string_of_int(!r))
-end
-
-let math_ops = ["+"; "-"; "*"; "/"]
-let bool_ops = ["&&"; "||"]
-let math_basictype = T.Arrow(T.Cross(T.Int, T.Int), T.Int)
-let bool_basictype = T.Arrow(T.Cross(T.Bool, T.Bool), T.Bool)
-
 type expression = E.t
 
 (*
