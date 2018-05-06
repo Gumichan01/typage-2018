@@ -74,16 +74,22 @@ let rec varsl alpha = function
     end
 
 (* Recursively replace a 'variable' (α) with the associated term *)
-let rec sub ( Sub( alpha, term ) ) expr =
+let apply_subs ( Sub( alpha, term ) ) expr =
   let su = Sub( alpha, term ) in
-  match expr with
-  | x when x = alpha -> term
-  | T.Cross( m, n )  -> T.Cross( ( sub su m ), ( sub su n ) )
-  | T.Arrow( m, n )  -> T.Arrow( ( sub su m ), ( sub su n ) )
-  | _ as i -> i
+  let rec sub_aux alpha' term' = function
+    | x when x = alpha' -> term'
+    | T.Cross( m, n )  ->
+      T.Cross( ( sub_aux alpha' term' m ), ( sub_aux alpha' term' n ) )
+
+    | T.Arrow( m, n )  ->
+      T.Arrow( ( sub_aux alpha term' m ), ( sub_aux alpha term' n ) )
+
+    | _ as i -> i
+
+  in sub_aux alpha term expr
 
 
-let substitute s ( Eq(t1, t2) ) = Eq( (sub s t1), (sub s t2) )
+let substitute s ( Eq( a, t ) ) = Eq( (apply_subs s a), (apply_subs s t) )
 
 let substitute_all s sys = List.map ( substitute s ) sys
 
@@ -97,7 +103,7 @@ let rec system_without_subs ( Sub(a, b) ) = function
     end
 
 (*
-    For each pair Eq(a, b), check if a is a variable.
+    For each pair ( a, b ), check if a is a variable.
     return true if every equations have a variable on the left, false otherwise
 *)
 let rec variables_on_left = function
@@ -133,7 +139,7 @@ let distinct l =
   in d_aux l ( Hashtbl.create (List.length l) )
 
 let is_resolved =
-  ( fun l -> ( variables_on_left l ) && distinct l )
+  ( fun l -> ( variables_on_left l ) && ( distinct l ) )
 
 
 let to_unifier sys =
@@ -257,7 +263,7 @@ let unify slist : unifier =
   Unifier - composition
 *)
 
-let comp_sub s ( Sub( e1, e2 ) ) = Sub( e1, ( sub s e2 ) )
+let comp_sub s ( Sub( e1, e2 ) ) = Sub( e1, ( apply_subs s e2 ) )
 
 (* for each substitution v, apply it to every elements in g *)
 let comp_map g v = List.map ( comp_sub v ) g

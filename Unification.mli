@@ -13,7 +13,7 @@ val from_eql : equation list -> system
 val is_variable : T.itype -> bool
 val vars : T.itype -> T.itype -> bool
 val varsl : T.itype -> equation list -> bool
-val sub : substitution -> T.itype -> T.itype
+val apply_subs : substitution -> T.itype -> T.itype
 val substitute : substitution -> equation -> equation
 val substitute_all : substitution -> equation list -> equation list
 val system_without_subs : substitution -> equation list -> equation list
