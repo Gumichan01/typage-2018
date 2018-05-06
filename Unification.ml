@@ -75,7 +75,6 @@ let rec varsl alpha = function
 
 (* Recursively replace a 'variable' (α) with the associated term *)
 let apply_subs ( Sub( alpha, term ) ) expr =
-  let su = Sub( alpha, term ) in
   let rec sub_aux alpha' term' = function
     | x when x = alpha' -> term'
     | T.Cross( m, n )  ->
