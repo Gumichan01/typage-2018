@@ -16,7 +16,7 @@ module T = Type
 (*type substitution = T.itype * T.itype*)
 type substitution = Sub of T.itype * T.itype
 
-(*The most greatest unifier *)
+(* The most greatest unifier *)
 type unifier = Unifier of substitution list
 
 (* System to unify *)

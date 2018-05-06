@@ -9,6 +9,7 @@
 
 ## Difficultés ##
 
-- Fonctions récursives
+- Fonctions "built-in"
 - généralisation (implémentation douteuse ?)
+- Fonctions récursives
 - Transformation en graphes (pour le traitement des types récursifs)

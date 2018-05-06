@@ -75,7 +75,7 @@ let rec infer (delta : environment) (e : expression) =
 
   (* W(∆, N L) = (μ(α), μ ◦ ρC ◦ ρB ),
      with W(∆, N) = (B, ρB), W (ρB(∆), L) = (C, ρC), α is a fresh variable and
-     μ = MGU (ρc(B ) = C → α) *)
+     μ = MGU (ρc(B) = C → α) *)
   | E.Apply( n, l ) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
