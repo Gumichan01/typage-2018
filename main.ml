@@ -93,14 +93,22 @@ let lambdaf = E.Lambda( "x", E.Var("x") ) in
 let apply_f = E.Apply( lambdaf, E.Const("2") ) in
 eval ( E.Letin( "f", lambdaf, apply_f ) );;*)
 
+(* ( x, y ) → x + y *)
+(*print_endline ("\n> (λx. fst(x) + snd(x)) <42, 1>");
+let p = E.Pair( E.Const("42"), E.Const("64") ) in
+let fp = E.Apply( E.Const("fst"), E.Var("z") ) in
+let sp = E.Apply( E.Const("snd"), E.Var("z") ) in
+let fplus       = E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("y") ) ) in
+let fsum        = E.Lambda( "x", ( E.Lambda( "y", fplus ) ) ) in
+let fpair = E.Lambda( "z", E.Apply( E.Apply( fsum, fp ), sp ) ) in
+eval ( E.Apply( fpair, p ) );;*)
+
 (* if-then-else *)
 (*let one = E.Const("1") in
 let two = E.Const("2") in
 let autoplus = E.Lambda( "x", E.Apply( E.Const("+"), E.Pair( E.Var("x"), E.Var("x") ) ) ) in
 let apif = E.Apply( E.Const("ifthenelse") , E.Pair( E.Const("true") , E.Pair( one, two ) ) ) in
 
-print_endline ("\n> if-then-else ");
-eval ( E.Const("ifthenelse") );
 print_endline ("\n> if true then 1 else 2");
 eval ( apif );
 print_endline ("\n> (if true then 1 else 2) + 1");
@@ -110,8 +118,8 @@ eval ( E.Apply( autoplus, apif ) );;*)
 (*let x       = E.Var("x") in
 let zero    = E.Const("0") in
 let one     = E.Const("1") in
-let equalv  = E.Apply( E.Const("="), E.Pair( x, zero ) ) in
 let minus   = E.Apply( E.Const("-"), E.Pair( x, one ) ) in
+let equalv  = E.Apply( E.Const("="), E.Pair( x, zero ) ) in
 let rec recfact = E.Apply( fact, minus )
 and multx   = E.Apply( E.Const("*"), E.Pair( x, recfact ) )
 and ifx     = E.Apply( E.Const("ifthenelse") , E.Pair( equalv, E.Pair( one, multx ) ) )
