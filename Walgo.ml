@@ -60,12 +60,23 @@ let rec gen ty delta = ignore(delta); T.gen_type ty
 *)
 let rec infer (delta : environment) (e : expression) =
   match e with
-  | E.Var( _ ) | E.Const( _ ) as cv -> ( inst delta cv, [] )
+  (* W ((∆, x : A), x) = (inst(A), id )  *)
+  | E.Var( _ )
+
+  (* W (∆, cte) = (inst(A), id), A is the type of the constant value cte *)
+  | E.Const( _ ) as cv -> ( inst delta cv, [] )
+
+  (* W (∆, < N, L >) = (ρC(B) × C, ρC ◦ ρB),
+     W(∆, N) = (B, ρB),
+     W(ρB(∆), L) = (C, ρC) *)
   | E.Pair( n, l ) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
     ( T.Cross( ( substype rhoc b ), c ), ( cunifier rhob rhoc ) )
 
+  (* W(∆, N L) = (μ(α), μ ◦ ρC ◦ ρB ),
+     with W(∆, N) = (B, ρB), W (ρB(∆), L) = (C, ρC), α is a fresh variable and
+     μ = MGU (ρc(B ) = C → α) *)
   | E.Apply( n, l ) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
@@ -74,11 +85,15 @@ let rec infer (delta : environment) (e : expression) =
     let ( U.Unifier( mgu ) ) = U.unify ( U.from_eql eql ) in
     ( ( substype mgu alpha ), cunifier ( cunifier rhob rhoc ) mgu )
 
+  (* W (∆, λx.N) = (ρ(α) → B, ρ),
+     with W((∆, x : α), N) = (B, ρ), α is a fresh variable *)
   | E.Lambda( x, n ) ->
     let fresh_alpha =  ( T.V.create () ) in
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
     ( T.Arrow( ( substype rho fresh_alpha ), b ), rho )
 
+  (* W(∆, let x = N in L) = (C, ρC ◦ ρB ), où W (∆, N) = (B, ρB),
+     W((ρB(∆), x : Gen(B, ρB(∆))), L) = (C, ρC) *)
   | E.Letin( x, n, l ) ->
     let b, rhob = infer delta n in
     let sigdelta = sigma delta rhob in
@@ -91,7 +106,6 @@ let rec infer (delta : environment) (e : expression) =
 
     Let Γ = x₁ : A₁, ..., xₙ : Aₙ an environment, and σ a type substitution.
     So σ(Γ) = x₁ : σ(A₁), ..., xₙ : σ(Aₙ)
-
   *)
   and sigma ( delta: environment ) sub =
     match sub with
@@ -114,7 +128,19 @@ let rec infer (delta : environment) (e : expression) =
         | None -> (x, a) :: sigma_in q sub
       end
 
-  (* Get the type instance of the variable or the constant value *)
+  (*
+    Get the type instance of the variable or the constant value
+
+    TC( + | - | * | / ): (int × int) → int
+    TC( = | != | < | > | <= | >= ): (int × int) → bool
+    TC( and | or | xor ): (bool × bool) → bool
+    TC( not ): bool → bool
+    TC( fst ): (α × β) → α
+    TC( snd ): (α × β) → β
+    TC( ifthenelse ): ( bool × α × α ) → α
+    TC( fix ): ( α → α ) → α
+
+  *)
   and inst env = function
   | E.Var( s )   -> List.assoc s env
   | E.Const( x ) -> inst_constv env x
