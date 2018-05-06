@@ -9,7 +9,6 @@
 
 module T = Type
 
-(* @note The function fails if a variable capture happened during the alpha-conversion *)
 
 (*
   technically → (Tvar, T.itype {Tvar / real type})
@@ -22,7 +21,7 @@ type unifier = Unifier of substitution list
 
 (* System to unify *)
 type equation = Eq of T.itype * T.itype
-type system =  System of equation list
+type system   = System of equation list
 
 exception RecursiveType
 exception TypeMismatch
@@ -32,62 +31,69 @@ exception Conflict
 
 (* debug *)
 let print_debug l =
-  let printE (Eq(a, b)) =
-    print_endline ( (T.to_string a) ^ " = " ^ (T.to_string b) )
+  let printE ( Eq( a, b ) ) =
+    print_endline ( ( T.to_string a ) ^ " = " ^ ( T.to_string b ) )
   in
-    print_endline ("========"); ignore (List.map printE l); print_endline ("========")
+    begin
+        print_endline( "========" );
+        ignore ( List.map printE l );
+        print_endline ( "========" )
+    end
 
-
-let to_eql ( System(eql) ) = eql
-let from_eql eql = System(eql)
+(*
+    to_eql: equation list -> system
+    from_eql: system -> equation list
+*)
+let to_eql ( System( eql ) ) = eql
+let from_eql eql = System( eql )
 
 let is_variable = function
-  | T.Tvar(_) -> true
+  | T.Tvar( _ ) -> true
   | _ -> false
 
 (*
     Checks if a variable belongs to the variables of a term
 *)
 let rec vars alpha = function
-  | T.Tvar(_) as a when alpha = a -> true
-  | T.Tvar(_) | T.Int | T.Bool  -> false
-  | T.Cross(m, n) -> (vars alpha m) || (vars alpha n)
-  | T.Arrow(a, b) -> (vars alpha a) || (vars alpha b)
+  | T.Tvar( _ ) as a when alpha = a -> true
+  | T.Tvar( _ ) | T.Int | T.Bool  -> false
+  | T.Cross( m, n ) -> ( vars alpha m ) || ( vars alpha n )
+  | T.Arrow( a, b ) -> ( vars alpha a ) || ( vars alpha b )
 
 (*
-    Checks if a variable is in a system
+    Checks if a variable is in a system (equation list)
 *)
 let rec varsl alpha = function
   | []   -> false
-  | ( Eq(a, b) )::q ->
+  | ( Eq( a, b ) )::q ->
     begin
-      match (vars alpha a), (vars alpha b) with
+      match ( vars alpha a ), ( vars alpha b ) with
       | true, _
       | _ , true  -> true
       | _ -> varsl alpha q
     end
 
 (* Recursively replace a 'variable' (α) with the associated term *)
-let rec sub (Sub(a, t)) e =
-  let su = Sub(a, t) in
-  match e with
-  | x when x = a   -> t
-  | T.Cross(m, n)  -> T.Cross( (sub su m), (sub su n) )
-  | T.Arrow(m, n)  -> T.Arrow( (sub su m), (sub su n) )
+let rec sub ( Sub( alpha, term ) ) expr =
+  let su = Sub( alpha, term ) in
+  match expr with
+  | x when x = alpha -> term
+  | T.Cross( m, n )  -> T.Cross( ( sub su m ), ( sub su n ) )
+  | T.Arrow( m, n )  -> T.Arrow( ( sub su m ), ( sub su n ) )
   | _ as i -> i
 
 
 let substitute s ( Eq(t1, t2) ) = Eq( (sub s t1), (sub s t2) )
 
-let substitute_all s sys = List.map (substitute s) sys
+let substitute_all s sys = List.map ( substitute s ) sys
 
 let rec system_without_subs ( Sub(a, b) ) = function
   | [] -> []
-  | Eq(m, n)::q when m = a && n = b -> q
+  | Eq( m, n )::q when m = a && n = b -> q
   | h::q ->
     begin
-        let s = Sub(a, b) in
-        h :: (system_without_subs s q)
+        let s = Sub( a, b ) in
+        h :: ( system_without_subs s q )
     end
 
 (*
@@ -96,7 +102,7 @@ let rec system_without_subs ( Sub(a, b) ) = function
 *)
 let rec variables_on_left = function
   | [] -> true
-  | ( Eq(a, _) )::q -> (is_variable a) && (variables_on_left q)
+  | ( Eq( a, _ ) )::q -> ( is_variable a ) && ( variables_on_left q )
 
 
 (*
@@ -108,7 +114,7 @@ let distinct l =
   let rec d_aux l hashtbl =
     match l with
     | [] -> true
-    | ( Eq(T.Tvar(a), _) )::q ->
+    | ( Eq( T.Tvar(a), _ ) )::q ->
       begin
         if Hashtbl.mem hashtbl a then
           false
@@ -118,7 +124,7 @@ let distinct l =
             d_aux q hashtbl
           end
       end
-    | ( Eq(a, b) )::q ->
+    | ( Eq( a, b ) )::q ->
       begin
           print_endline ( "! " ^ ( T.to_string a ) );
           print_endline ( "! " ^ ( T.to_string b ) );
@@ -127,14 +133,14 @@ let distinct l =
   in d_aux l ( Hashtbl.create (List.length l) )
 
 let is_resolved =
-  (fun l -> (variables_on_left l) && distinct l)
+  ( fun l -> ( variables_on_left l ) && distinct l )
 
 
 let to_unifier sys =
   let rec aux_u l acc =
     match l with
-    | [] -> Unifier(acc)
-    | ( Eq(m, n) )::q  -> aux_u q ( ( Sub(m, n) )::acc )
+    | [] -> Unifier( acc )
+    | ( Eq( m, n ) )::q  -> aux_u q ( ( Sub( m, n ) ) :: acc )
   in aux_u sys []
 
 
@@ -157,19 +163,19 @@ let unify slist : unifier =
     let sl = swap dl in
     let el = eliminate sl in
     let eel = erase el in
-    print_endline ("equation system input");print_debug l;
-    print_endline ("equation system decomp"); print_debug dl;
-    print_endline ("equation system swap");print_debug sl;
-    print_endline ("equation system eliminate ");print_debug el;
-    print_endline ("equation system erase");print_debug eel;
+    print_endline ( "equation system input" ); print_debug l;
+    print_endline ( "equation system decomp" ); print_debug dl;
+    print_endline ( "equation system swap" ); print_debug sl;
+    print_endline ( "equation system eliminate " ); print_debug el;
+    print_endline ( "equation system erase" ); print_debug eel;
     List.map check eel
 
   and erase l =
     let rec aux_erase sl res =
       match sl with
       | [] -> res
-      | ( Eq(s1, s2) )::q when s1 = s2 -> aux_erase q (res)
-      | h::q -> aux_erase q (h::res)
+      | ( Eq(s1, s2) )::q when s1 = s2 -> aux_erase q ( res )
+      | h :: q -> aux_erase q ( h :: res )
     in aux_erase l []
 
   and eliminate l = eliminate_aux l l
