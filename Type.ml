@@ -29,8 +29,6 @@ let rec to_string = function
 *)
 module V = struct
   type t = string
-  let compare v1 v2 = Pervasives.compare v1 v2
-  let equal v1 v2 = v1 = v2
   let create =
     begin
       let r = ref 0 in
