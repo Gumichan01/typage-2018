@@ -22,6 +22,4 @@ val distinct : equation list -> bool
 val is_resolved : equation list -> bool
 val to_unifier : equation list -> unifier
 val unify : system -> unifier
-val comp_sub : substitution -> substitution -> substitution
-val comp_map : substitution list -> substitution -> substitution list
 val compose_unifier : unifier -> unifier -> substitution list

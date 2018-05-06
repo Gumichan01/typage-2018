@@ -257,11 +257,12 @@ let unify sys : unifier =
       . α × α = α -> α
   *)
   and conflict = function
-    | Eq( T.Int, T.Bool ) | Eq(T.Bool, T.Int)
-    | Eq( T.Int, T.Cross( _, _ ) )  | Eq( T.Cross( _, _ ), T.Int )
-    | Eq( T.Int, T.Arrow( _, _ ) )  | Eq( T.Arrow( _, _ ), T.Int )
-    | Eq( T.Bool, T.Cross( _, _ ) ) | Eq( T.Cross( _, _ ), T.Bool )
-    | Eq( T.Bool, T.Arrow( _, _ ) ) | Eq( T.Arrow( _, _ ), T.Bool ) -> true
+    | Eq( T.Int, T.Bool ) | Eq( T.Bool, T.Int )
+    | Eq( T.Int, T.Cross( _ ) )  | Eq( T.Cross( _ ), T.Int )
+    | Eq( T.Int, T.Arrow( _ ) )  | Eq( T.Arrow( _ ), T.Int )
+    | Eq( T.Bool, T.Cross( _ ) ) | Eq( T.Cross( _ ), T.Bool )
+    | Eq( T.Bool, T.Arrow( _ ) ) | Eq( T.Arrow( _ ), T.Bool )
+    | Eq( T.Cross( _ ), T.Arrow( _ ) ) | Eq( T.Arrow( _ ), T.Cross( _ ) ) -> true
     | _ -> false
 
   in unify_aux ( to_eql sys )
@@ -271,13 +272,11 @@ let unify sys : unifier =
   Unifier - composition
 *)
 
-let comp_sub s ( Sub( e1, e2 ) ) = Sub( e1, ( apply_subs s e2 ) )
-
-(* for each substitution v, apply it to every elements in g *)
-let comp_map g v = List.map ( comp_sub v ) g
-
 (* compose_unifier g f ≡ f ∘ g *)
 let compose_unifier g f =
+  let comp_sub s ( Sub( e1, e2 ) ) = Sub( e1, ( apply_subs s e2 ) ) in
+  (* for each substitution v, apply it to every elements in g *)
+  let comp_map g v = List.map ( comp_sub v ) g in
   let rec comp_aux g' = function
     | [] -> g'
     | s :: q -> comp_aux ( s :: ( comp_map g' s ) ) q
@@ -287,34 +286,3 @@ let compose_unifier g f =
         let ( Unifier( f' ) ) = f in
         comp_aux g' f'    (* f ∘ g *)
     end
-
-
-(* Just to test *)
-(*
-let rec to_string = function
-  | T.Int -> "int"
-  | T.Bool -> "bool"
-  | T.Cross(x, y) -> (to_string x) ^ " × " ^ (to_string y)
-  | T.Arrow(x, y) -> "(" ^ (to_string x) ^ ") → (" ^ (to_string y) ^ ")"
-  | T.Tvar(s) -> s
-
-
-let printI (Sub(a, b)) = print_endline((to_string a) ^ "/" ^ (to_string b));;
-
-
-let s =
-[ Eq((T.Tvar("α1"), T.Int));
-  Eq((T.Int, T.Int));
-  Eq((T.Bool, T.Tvar("α2")));
-  Eq((T.Tvar("α1"), T.Tvar("α4")));
-  Eq((T.Cross(T.Tvar("α3"), T.Tvar("α4")), T.Cross(T.Bool, T.Int))) ];;
-let (Unifier(res)) = unify (from_eql s);;
-List.map printI res;;
-
-compose_unifier ( Unifier([]) ) ( Unifier([]) );;
-print_endline("composition ");;
-let g = [ Sub((T.Tvar("α5"), T.Tvar("α4"))); Sub((T.Tvar("α6"), T.Tvar("α2"))) ];;
-
-let res2 = compose_unifier ( Unifier(g) ) ( Unifier(res) ) in
-List.map printI res2;;
-*)
