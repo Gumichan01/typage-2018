@@ -153,10 +153,10 @@ let rec infer (delta : environment) (e : expression) =
                 T.Arrow( T.Cross( T.Bool, T.Cross( a, a ) ), a )
               end
 
-           | "fix" ->   (* TODO fix fix *)
+           | "fix" ->
              begin
                let a = ( T.V.create () ) in
-               T.Arrow( T.Cross( a, a ), a )
+               T.Arrow( T.Arrow( a, a ), a )
              end
 
            | _ -> assert(false) (* pre-condition: integer or boolean value *)
