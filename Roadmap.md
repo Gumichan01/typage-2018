@@ -1,11 +1,6 @@
 
 # Roadmap #
 
-## Questions (que je dois me poser) ##
-
-- α-conversion necessaire ?
-- free\_variable et bound\_variable nécessaire ?
-
 ## Feuille de route ##
 
 Pour le moment mon objectif est de faire tout ça sur des type non-récursifs:
