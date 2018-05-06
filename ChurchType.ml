@@ -3,6 +3,7 @@
   ChurchType.ml
 
   This file defines church type system
+  This file is not used in the final program
 
   Author : Luxon JEAN-PIERRE
 *)
