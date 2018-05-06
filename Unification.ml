@@ -184,23 +184,25 @@ let unify sys : unifier =
       | h :: q -> aux_erase q ( h :: res )
     in aux_erase l []
 
-  and eliminate l = eliminate_aux l l
+  and eliminate l = (*eliminate_aux l l*)
+    let rec eliminate_aux g acc =
+      match g with
+      | [] -> acc
+      | ( Eq( a, t ) ) :: q when (is_variable a) ->
+        begin
+          let eq = Eq( a, t ) in
+          let s  = Sub( a, t ) in
+          let ng = system_without_subs s g in (* E \ { a ← t } *)
+          if not( vars a t ) && ( varsl a ng ) then
+            begin
+              eliminate_aux ( eq :: ( substitute_all s ng ) ) acc (* E' U { a = t } *)
+            end
+          else
+            eliminate_aux q ( ( Eq( a, t ) ) :: acc )
+        end
+      | h :: q -> eliminate_aux q ( h :: acc )
 
-  and eliminate_aux g = function
-    | [] -> []
-    | ( Eq( a, t ) ) :: q when (is_variable a) ->
-      begin
-        let eq = Eq( a, t ) in
-        let s  = Sub( a, t ) in
-        let ng = system_without_subs s g in (* E \ { a ← t } *)
-        if not( vars a t ) && ( varsl a ng ) then
-          begin
-            eliminate ( eq :: ( substitute_all s ng ) ) (* E' U { a = t } *)
-          end
-        else
-          ( Eq( a, t ) ) :: ( eliminate_aux q q )
-      end
-    | h::q -> h :: ( eliminate_aux q q )
+    in eliminate_aux l []
 
   and swap l =
     let rec aux_swap sl res =
@@ -235,6 +237,10 @@ let unify sys : unifier =
         raise Conflict
       else p
 
+  (*
+      . α = α × α  - recursive type
+      . α = α -> α - recursive type
+  *)
   and occurs_check = function
     | Eq( T.Tvar( s ), T.Cross( x, y ) )
     | Eq( T.Tvar( s ), T.Arrow( x, y ) ) ->
@@ -249,8 +255,6 @@ let unify sys : unifier =
       . int = bool
       . bool = int
       . α × α = α -> α
-      . α = α × α  - recursive type
-      . α = α -> α - recursive type
   *)
   and conflict = function
     | Eq( T.Int, T.Bool ) | Eq(T.Bool, T.Int)
