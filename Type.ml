@@ -16,6 +16,7 @@ type itype =
   (* temporay type I am using to infer the type *)
   | Tvar of string
 
+
 let rec to_string = function
   | Int -> "int"
   | Bool -> "bool"
@@ -23,6 +24,9 @@ let rec to_string = function
   | Arrow( x, y ) -> ( to_string x ) ^ " → " ^ ( to_string y )
   | Tvar( s ) -> s
 
+(*
+    α type creation
+*)
 module V = struct
   type t = string
   let compare v1 v2 = Pervasives.compare v1 v2
@@ -35,12 +39,20 @@ module V = struct
 end
 
 (*
-  Generalization of a type - the famous Gen operator
+  Generalization of a type
 
-  @note This implementation is different from how it was defined in class
+  Gen(int) = Gen(bool) = α
+  Gen(int -> int) = Gen(bool -> bool) = α -> α
+  Gen(int -> bool) = Gen(bool -> int) = α -> β
 
-  -> Gen(A, Γ) = ∀( α1, ..., αn ).A | { α1 , ..., αn } = VarLib(A) \ VarLib(Γ)
+  Gen(int -> A) = Gen(bool -> A) = α -> Gen(A)
+  Gen(int × A) = Gen(bool × A) = α × Gen(A)
 
+  Gen(A -> int) = Gen(A -> bool) = Gen(A) -> β
+  Gen(A × int) = Gen(A × bool) = Gen(A) × β
+
+  Gen(A -> B) = Gen(A) -> Gen(B)
+  Gen(A × B) = Gen(A) × Gen(B)
 *)
 let rec gen_type = function
   | Tvar( _ ) as tv -> tv
