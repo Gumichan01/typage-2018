@@ -37,7 +37,10 @@ end
 (*
   Generalization of a type - the famous Gen operator
 
-  @note This implementation is different from how it was defined in class 
+  @note This implementation is different from how it was defined in class
+
+  -> Gen(A, Γ) = ∀( α1, ..., αn ).A | { α1 , ..., αn } = VarLib(A) \ VarLib(Γ)
+
 *)
 let rec gen_type = function
   | Tvar( _ ) as tv -> tv
