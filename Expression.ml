@@ -2,7 +2,7 @@
 (*
   Expression.ml
 
-  Expression to infer the type of
+  Expression to infer the type of (Curry)
 
   Author : Luxon JEAN-PIERRE
 *)
