@@ -13,6 +13,14 @@ module U = Unification
 
 type expression = E.t
 
+(* Typing environment *)
+type environment = ( string * T.itype ) list
+
+(* substitution *)
+(*type unifier = (T.itype * T.itype) list*)
+type unifier = U.unifier
+
+
 (*
   There is a function that does the job in Ocaml 4.06, but I don't have this version.
   So I implemented it myself
@@ -26,14 +34,6 @@ let lassoc_opt e l =
 
 let from_sblist sblist =
   List.map (fun ( U.Sub( a, b ) ) -> ( a, b ) ) sblist
-
-
-(* Typing environment *)
-type environment = ( string * T.itype ) list
-
-(* substitution *)
-(*type unifier = (T.itype * T.itype) list*)
-type unifier = U.unifier
 
 (* unifier composition - f ∘ g *)
 let cunifier g f = U.compose_unifier ( U.Unifier( g ) ) ( U.Unifier( f ) )
