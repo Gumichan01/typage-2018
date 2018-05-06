@@ -1,10 +1,16 @@
 
 CC=ocaml
 CFLAGS=-c -g -rectypes
-OFLAGS=-a
+OFLAGS=
+EXE=itype
 
-all:
+all: $(EXE)
+	@echo ""
 
+$(EXE): Type.cmo Unification.cmo Expression.cmo Expression.cmo Walgo.cmo
+	ocamlc $(OFLAGS) $^ -o $@
+
+# ChurchType is unused
 ChurchType.mli: ChurchType.ml
 	ocamlc -i $(CFLAGS) $< > $@
 
@@ -29,6 +35,7 @@ Expression.cmi: Expression.mli
 Expression.cmo: Expression.ml Expression.mli Expression.cmi
 	ocamlc $(CFLAGS) $<
 
+# Variable is unused
 Variable.mli: Variable.ml
 	ocamlc -i $< > $@
 
