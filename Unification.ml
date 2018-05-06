@@ -56,7 +56,7 @@ let is_variable = function
 *)
 let rec vars alpha = function
   | T.Tvar( _ ) as a when alpha = a -> true
-  | T.Tvar( _ ) | T.Int | T.Bool  -> false
+  | T.Tvar( _ ) | T.Int | T.Bool    -> false
   | T.Cross( m, n ) -> ( vars alpha m ) || ( vars alpha n )
   | T.Arrow( a, b ) -> ( vars alpha a ) || ( vars alpha b )
 
@@ -65,7 +65,7 @@ let rec vars alpha = function
 *)
 let rec varsl alpha = function
   | []   -> false
-  | ( Eq( a, b ) )::q ->
+  | ( Eq( a, b ) ) :: q ->
     begin
       match ( vars alpha a ), ( vars alpha b ) with
       | true, _
@@ -89,8 +89,8 @@ let substitute_all s sys = List.map ( substitute s ) sys
 
 let rec system_without_subs ( Sub(a, b) ) = function
   | [] -> []
-  | Eq( m, n )::q when m = a && n = b -> q
-  | h::q ->
+  | Eq( m, n ) :: q when m = a && n = b -> q
+  | h :: q ->
     begin
         let s = Sub( a, b ) in
         h :: ( system_without_subs s q )
@@ -102,7 +102,7 @@ let rec system_without_subs ( Sub(a, b) ) = function
 *)
 let rec variables_on_left = function
   | [] -> true
-  | ( Eq( a, _ ) )::q -> ( is_variable a ) && ( variables_on_left q )
+  | ( Eq( a, _ ) ) :: q -> ( is_variable a ) && ( variables_on_left q )
 
 
 (*
@@ -114,7 +114,7 @@ let distinct l =
   let rec d_aux l hashtbl =
     match l with
     | [] -> true
-    | ( Eq( T.Tvar(a), _ ) )::q ->
+    | ( Eq( T.Tvar(a), _ ) ) :: q ->
       begin
         if Hashtbl.mem hashtbl a then
           false
@@ -174,7 +174,7 @@ let unify slist : unifier =
     let rec aux_erase sl res =
       match sl with
       | [] -> res
-      | ( Eq(s1, s2) )::q when s1 = s2 -> aux_erase q ( res )
+      | ( Eq( s1, s2 ) ) :: q when s1 = s2 -> aux_erase q ( res )
       | h :: q -> aux_erase q ( h :: res )
     in aux_erase l []
 
@@ -182,33 +182,35 @@ let unify slist : unifier =
 
   and eliminate_aux g = function
     | [] -> []
-    | ( Eq(a, t) )::q when (is_variable a) ->
+    | ( Eq( a, t ) ) :: q when (is_variable a) ->
       begin
-        let eq = Eq(a, t) in
-        let s  = Sub(a, t) in
+        let eq = Eq( a, t ) in
+        let s  = Sub( a, t ) in
         let ng = system_without_subs s g in (* E \ { a ← t } *)
-        if not(vars a t) && (varsl a ng) then
+        if not( vars a t ) && ( varsl a ng ) then
           begin
-            eliminate ( eq :: (substitute_all s ng) ) (* E' U { a = t } *)
+            eliminate ( eq :: ( substitute_all s ng ) ) (* E' U { a = t } *)
           end
         else
-          ( Eq(a, t) ) :: (eliminate_aux q q)
+          ( Eq( a, t ) ) :: ( eliminate_aux q q )
       end
-    | h::q -> h :: (eliminate_aux q q)
+    | h::q -> h :: ( eliminate_aux q q )
 
   and swap l =
     let rec aux_swap sl res =
       match sl with
       | [] -> res
-      | ( Eq( T.Tvar(s), x ) )::q
-      | ( Eq( x, T.Tvar(s) ) )::q -> aux_swap q ( ( Eq(T.Tvar(s), x) )::res )
-      | h::q -> aux_swap q (h::res)
+      | ( Eq( T.Tvar(s), x ) ) :: q
+      | ( Eq( x, T.Tvar(s) ) ) :: q -> aux_swap q ( ( Eq( T.Tvar(s), x ) ) :: res )
+      | h :: q -> aux_swap q ( h :: res )
     in aux_swap l []
 
   and decompose = function
     | [] -> []    (* yes, it is possible *)
-    | ( Eq(T.Cross(u, w), T.Cross(v, x)) )::q
-    | ( Eq(T.Arrow(u, w), T.Arrow(v, x)) )::q -> (Eq(u, v)) :: (Eq(w, x)) :: (decompose q)
+    | ( Eq( T.Cross( u, w ), T.Cross( v, x ) ) ) :: q
+    | ( Eq( T.Arrow( u, w ), T.Arrow( v, x ) ) ) :: q ->
+      ( Eq( u, v ) ) :: ( Eq( w, x ) ) :: ( decompose q )
+
     | h::q -> h :: (decompose q)
 
   (*
@@ -224,10 +226,10 @@ let unify slist : unifier =
       else p
 
   and occurs_check = function
-    | Eq( T.Tvar(s), T.Cross(x, y) )
-    | Eq( T.Tvar(s), T.Arrow(x, y) ) ->
+    | Eq( T.Tvar( s ), T.Cross( x, y ) )
+    | Eq( T.Tvar( s ), T.Arrow( x, y ) ) ->
       begin
-          let a = T.Tvar(s) in
+          let a = T.Tvar( s ) in
           vars a x && vars a y
       end
     | _ -> false
@@ -241,11 +243,11 @@ let unify slist : unifier =
       . α = α -> α - recursive type
   *)
   and conflict = function
-    | Eq(T.Int, T.Bool) | Eq(T.Bool, T.Int)
-    | Eq(T.Int, T.Cross(_, _)) | Eq(T.Cross(_, _), T.Int)
-    | Eq(T.Int, T.Arrow(_, _)) | Eq(T.Arrow(_, _), T.Int)
-    | Eq(T.Bool, T.Cross(_, _)) | Eq(T.Cross(_, _), T.Bool)
-    | Eq(T.Bool, T.Arrow(_, _)) | Eq(T.Arrow(_, _), T.Bool) -> true
+    | Eq( T.Int, T.Bool ) | Eq(T.Bool, T.Int)
+    | Eq( T.Int, T.Cross( _, _ ) )  | Eq( T.Cross( _, _ ), T.Int )
+    | Eq( T.Int, T.Arrow( _, _ ) )  | Eq( T.Arrow( _, _ ), T.Int )
+    | Eq( T.Bool, T.Cross( _, _ ) ) | Eq( T.Cross( _, _ ), T.Bool )
+    | Eq( T.Bool, T.Arrow( _, _ ) ) | Eq( T.Arrow( _, _ ), T.Bool ) -> true
     | _ -> false
 
   in unify_aux ( to_eql slist )
@@ -255,20 +257,20 @@ let unify slist : unifier =
   Unifier - composition
 *)
 
-let comp_sub s ( Sub(e1,e2) ) = Sub(e1, (sub s e2))
+let comp_sub s ( Sub( e1, e2 ) ) = Sub( e1, ( sub s e2 ) )
 
 (* for each substitution v, apply it to every elements in g *)
-let comp_map g v = List.map (comp_sub v) g
+let comp_map g v = List.map ( comp_sub v ) g
 
 (* compose_unifier g f ≡ f ∘ g *)
 let compose_unifier g f =
   let rec comp_aux g' = function
     | [] -> g'
-    | s::q -> comp_aux ( s::( comp_map g' s )) q
+    | s :: q -> comp_aux ( s :: ( comp_map g' s ) ) q
   in
     begin
-        let (Unifier(g')) = g in
-        let (Unifier(f')) = f in
+        let ( Unifier( g' ) ) = g in
+        let ( Unifier( f' ) ) = f in
         comp_aux g' f'    (* f ∘ g *)
     end
 
