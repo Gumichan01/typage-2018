@@ -139,7 +139,6 @@ let rec infer (delta : environment) (e : expression) =
     TC( snd ): (α × β) → β
     TC( ifthenelse ): ( bool × α × α ) → α
     TC( fix ): ( α → α ) → α
-
   *)
   and inst env = function
   | E.Var( s )   -> List.assoc s env
