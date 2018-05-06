@@ -180,23 +180,31 @@ eval ( E.Const("42") );;
 
 print_endline ("\n> true and false");;
 eval ( E.Const("true") );;
-eval ( E.Const("false") );;*)
+eval ( E.Const("false") );;
 
-(*
-print_endline ("\n> + | fst | snd | ifthenelse | fix");;
+
+print_endline ("\n> + ");;
 eval ( E.Const("+") );;
+print_endline ("\n> fst");;
 eval ( E.Const("fst") );;
+print_endline ("\n>  snd");;
 eval ( E.Const("snd") );;
+print_endline ("\n> ifthenelse");;
 eval ( E.Const("ifthenelse") );;
+print_endline ("\n> fix");;
 eval ( E.Const("fix") );;*)
 
 (* pairs *)
 (*print_endline ("\n> pairs");;
 let p1 = E.Pair( E.Const("42"), E.Const("42") );;
 let p2 = E.Pair( E.Const("42"), E.Const("true"));;
+print_endline ("\n> ( 42, 42 )");;
 eval ( p1 );;
+print_endline ("\n> ( 42, true )");;
 eval ( p2 );;
+print_endline ("\n> ( 64, ( 42, ( 42, true ) ) )");;
 eval ( E.Pair( E.Const("64"), E.Pair( E.Const("42"), p2 ) ) );;
+print_endline ("\n> ( ( false, true ) , ( 42, 42 ) ) )");;
 eval ( E.Pair( E.Pair( E.Const("false"), E.Const("true") ), p1 ) );;*)
 
 (* lambda *)
@@ -212,9 +220,9 @@ eval ( E.Apply( E.Lambda( "x", splus ), E.Const("42") ) );;*)
 eval ( E.Lambda( "x", E.Var("x") ) );;
 
 print_endline ("\n> (λx.x) 42");;
-eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;*)
+eval ( E.Apply( E.Lambda( "x", E.Var("x") ), E.Const("42") ) );;
 
-(*let id_fun = E.Apply( E.Lambda( "x", E.Var("x") ),
+let id_fun = E.Apply( E.Lambda( "x", E.Var("x") ),
                       E.Lambda( "y", E.Apply( E.Const("+"),
                                               E.Pair( E.Var("y"), E.Var("y") ) ) ) ) in
 
@@ -232,12 +240,12 @@ eval ( fsum );
 print_endline ("\n> (λx.λy. x + y ) 42");
 eval ( partial_sum );
 print_endline ("\n> (λx.λy. x + y ) 42 1");
-eval ( E.Apply( partial_sum , E.Const("1") ) );;*)
+eval ( E.Apply( partial_sum , E.Const("1") ) );;
 
 print_endline ("\n> let f = λx.x in f 2");
 let lambdaf = E.Lambda( "x", E.Var("x") ) in
 let apply_f = E.Apply( lambdaf, E.Const("2") ) in
-eval ( E.Letin( "f", lambdaf, apply_f ) );
+eval ( E.Letin( "f", lambdaf, apply_f ) );;*)
 
 (* if-then-else *)
 (*let one = E.Const("1") in
@@ -270,7 +278,8 @@ eval ( E.Apply(fact, E.Const("3") ) );;*)
 (*
     Comment:
 
-    - (DOING final goal) Apply the algorithm for each element of type chtype (an expression).
+    - (EXPERIMENT) transform types -> graph
+    - (DONE final goal) Apply the algorithm for each element of type chtype (an expression).
       (DONE) substype a type by another using the substitution
       (DONE) σ₁ o σ₂ function
     - (DONE) Unification
