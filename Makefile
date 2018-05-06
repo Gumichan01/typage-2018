@@ -7,7 +7,7 @@ EXE=itype
 all: $(EXE)
 	@echo ""
 
-$(EXE): Type.cmo Unification.cmo Expression.cmo Expression.cmo Walgo.cmo
+$(EXE): Type.cmo Unification.cmo Expression.cmo Expression.cmo Walgo.cmo main.cmo
 	ocamlc $(OFLAGS) $^ -o $@
 
 # ChurchType is unused
@@ -61,6 +61,15 @@ Walgo.cmi: Walgo.mli
 	ocamlc $(CFLAGS) $<
 
 Walgo.cmo: Walgo.ml Walgo.mli Walgo.cmi Unification.cmo Expression.cmo
+	ocamlc $(CFLAGS) $<
+
+main.mli: main.ml Walgo.cmo Type.cmo Expression.cmo
+	ocamlc -i $(CFLAGS) $< > $@
+
+main.cmi: main.mli
+	ocamlc $(CFLAGS) $<
+
+main.cmo: main.ml main.mli main.cmi Walgo.cmo Expression.cmo Type.cmo
 	ocamlc $(CFLAGS) $<
 
 clean:
