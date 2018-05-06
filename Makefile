@@ -76,4 +76,4 @@ clean:
 	rm -f *.cmo *.cmi
 
 mrproper: clean
-	rm -f a.out
+	rm -f $(EXE)
