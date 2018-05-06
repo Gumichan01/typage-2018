@@ -19,7 +19,7 @@ type expression = E.t
 *)
 let lassoc_opt e l =
   try
-      Some(List.assoc e l)
+      Some( List.assoc e l )
   with
   | _ -> None
 
@@ -29,14 +29,14 @@ let from_sblist sblist =
 
 
 (* Typing environment *)
-type environment = (string * T.itype) list
+type environment = ( string * T.itype ) list
 
 (* substitution *)
 (*type unifier = (T.itype * T.itype) list*)
 type unifier = U.unifier
 
 (* unifier composition - f ∘ g *)
-let cunifier g f = U.compose_unifier ( U.Unifier(g) ) ( U.Unifier(f) )
+let cunifier g f = U.compose_unifier ( U.Unifier( g ) ) ( U.Unifier( f ) )
 
 (*
     Substitute a type by replacing it with another type, if it can be replaced
@@ -47,7 +47,11 @@ let substype rho a =
   | Some(t) -> t
   | None -> a
 
+(*
+    Generalization of a type
 
+    Gen(A, Γ) = ∀( α1 , ..., αn ).A |{ α1 , ..., αn } = VarLib(A) \ VarLib(Γ)
+*)
 let rec gen ty delta = ignore(delta); T.gen_type ty
 
 
@@ -56,30 +60,30 @@ let rec gen ty delta = ignore(delta); T.gen_type ty
 *)
 let rec infer (delta : environment) (e : expression) =
   match e with
-  | E.Var(_) | E.Const(_) as cv -> ( inst delta cv, [] )
-  | E.Pair(n, l) ->
+  | E.Var( _ ) | E.Const( _ ) as cv -> ( inst delta cv, [] )
+  | E.Pair( n, l ) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
-    ( T.Cross( (substype rhoc b), c ), ( cunifier rhob rhoc ) )
+    ( T.Cross( ( substype rhoc b ), c ), ( cunifier rhob rhoc ) )
 
-  | E.Apply(n, l) ->
+  | E.Apply( n, l ) ->
     let b, rhob = infer delta n in
     let c, rhoc = infer ( sigma delta rhob ) l in
     let alpha = ( T.V.create () ) in
-    let eql = [ U.Eq( (substype rhoc b), T.Arrow( c, alpha ) ) ] in
-    let (U.Unifier(mgu)) = U.unify ( U.from_eql eql ) in
-    ( (substype mgu alpha), cunifier ( cunifier rhob rhoc ) mgu )
+    let eql = [ U.Eq( ( substype rhoc b ), T.Arrow( c, alpha ) ) ] in
+    let ( U.Unifier( mgu ) ) = U.unify ( U.from_eql eql ) in
+    ( ( substype mgu alpha ), cunifier ( cunifier rhob rhoc ) mgu )
 
-  | E.Lambda(x, n) ->
+  | E.Lambda( x, n ) ->
     let fresh_alpha =  ( T.V.create () ) in
     let b, rho = infer ( ( x, fresh_alpha )::delta ) n in
-    ( T.Arrow( ( substype rho fresh_alpha), b ), rho ) (* change it *)
+    ( T.Arrow( ( substype rho fresh_alpha ), b ), rho )
 
-  | E.Letin(x, n, l) ->
+  | E.Letin( x, n, l ) ->
     let b, rhob = infer delta n in
     let sigdelta = sigma delta rhob in
-    let xtype = gen b sigdelta in (* NOTE function: Gen ??? *)
-    let c, rhoc = infer ( ( x, xtype) :: sigdelta) l in
+    let xtype = gen b sigdelta in
+    let c, rhoc = infer ( ( x, xtype ) :: sigdelta ) l in
     ( c, ( cunifier rhob rhoc ) )
 
   (*
@@ -89,10 +93,10 @@ let rec infer (delta : environment) (e : expression) =
     So σ(Γ) = x₁ : σ(A₁), ..., xₙ : σ(Aₙ)
 
   *)
-  and sigma (delta: environment) sub =
+  and sigma ( delta: environment ) sub =
     match sub with
     | [] -> delta
-    | _ ->
+    | _  ->
       begin
           match delta with
           | [] -> delta
@@ -100,10 +104,10 @@ let rec infer (delta : environment) (e : expression) =
       end
 
   (* pre-condition: sub is not an empty list *)
-  and sigma_in (delta: environment) sub =
+  and sigma_in ( delta: environment ) sub =
     match delta with
     | [] -> delta
-    | (x, a)::q ->
+    | ( x, a ) :: q ->
       begin
         match ( lassoc_opt a ( from_sblist sub ) ) with
         | Some(t) -> (x, t) :: sigma_in q sub
@@ -112,15 +116,15 @@ let rec infer (delta : environment) (e : expression) =
 
   (* Get the type instance of the variable or the constant value *)
   and inst env = function
-  | E.Var(s)   -> List.assoc s env
-  | E.Const(x) -> inst_constv env x
-  | _-> assert(false) (* type instance *)
+  | E.Var( s )   -> List.assoc s env
+  | E.Const( x ) -> inst_constv env x
+  | _-> assert( false ) (* type instance *)
 
 
   (* Get the type instance of constant value *)
   and inst_constv env x =
     match inst_intv x with
-     | Some(_) -> T.Int
+     | Some( _ ) -> T.Int
      | None ->
        begin
            match x with
@@ -146,13 +150,13 @@ let rec infer (delta : environment) (e : expression) =
            | "ifthenelse" ->
               begin
                 let a = ( T.V.create () ) in
-                T.Arrow( T.Cross( T.Bool, T.Cross( a, a) ), a )
+                T.Arrow( T.Cross( T.Bool, T.Cross( a, a ) ), a )
               end
 
-           | "fix" ->
+           | "fix" ->   (* TODO fix fix *)
              begin
                let a = ( T.V.create () ) in
-               T.Arrow( T.Cross( a, a), a )
+               T.Arrow( T.Cross( a, a ), a )
              end
 
            | _ -> assert(false) (* pre-condition: integer or boolean value *)
@@ -160,7 +164,6 @@ let rec infer (delta : environment) (e : expression) =
 
   and inst_intv s =
     try
-      Some(int_of_string s)
+      Some( int_of_string s )
     with
     | _ -> None
-;;
