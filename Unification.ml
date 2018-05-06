@@ -274,7 +274,8 @@ let unify sys : unifier =
 
 (* compose_unifier g f ≡ f ∘ g *)
 let compose_unifier g f =
-  let comp_sub s ( Sub( e1, e2 ) ) = Sub( e1, ( apply_subs s e2 ) ) in
+  (* [ e = v ] { v / v' } -> [e = v'] *)
+  let comp_sub s ( Sub( e, v ) ) = Sub( e, ( apply_subs s v ) ) in
   (* for each substitution v, apply it to every elements in g *)
   let comp_map g v = List.map ( comp_sub v ) g in
   let rec comp_aux g' = function
