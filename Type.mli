@@ -1,3 +1,12 @@
+
+(*
+  Type.mli
+
+  Type system + inference
+
+  Author : Luxon JEAN-PIERRE
+*)
+
 type itype =
     Bool
   | Int
