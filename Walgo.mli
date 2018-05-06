@@ -2,10 +2,10 @@ module T = Type
 module E = Expression
 module U = Unification
 type expression = E.t
-val lassoc_opt : 'a -> ('a * 'b) list -> 'b option
-val from_sblist : U.substitution list -> (U.T.itype * U.T.itype) list
 type environment = (string * T.itype) list
 type unifier = U.unifier
+val lassoc_opt : 'a -> ('a * 'b) list -> 'b option
+val from_sblist : U.substitution list -> (U.T.itype * U.T.itype) list
 val cunifier :
   U.substitution list -> U.substitution list -> U.substitution list
 val substype : U.substitution list -> U.T.itype -> U.T.itype

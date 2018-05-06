@@ -13,11 +13,10 @@ module U = Unification
 
 type expression = E.t
 
-(* Typing environment *)
+(* Typing environment - Δ *)
 type environment = ( string * T.itype ) list
 
-(* substitution *)
-(*type unifier = (T.itype * T.itype) list*)
+(* unifier - μ *)
 type unifier = U.unifier
 
 
@@ -52,7 +51,7 @@ let substype rho a =
 
     Gen(A, Γ) = ∀( α1 , ..., αn ).A |{ α1 , ..., αn } = VarLib(A) \ VarLib(Γ)
 *)
-let rec gen ty delta = ignore(delta); T.gen_type ty
+let gen ty delta = ignore(delta); T.gen_type ty
 
 
 (*
@@ -60,10 +59,10 @@ let rec gen ty delta = ignore(delta); T.gen_type ty
 *)
 let rec infer (delta : environment) (e : expression) =
   match e with
-  (* W ((∆, x : A), x) = (inst(A), id )  *)
+  (* W((∆, x : A), x) = (inst(A), id )  *)
   | E.Var( _ )
 
-  (* W (∆, cte) = (inst(A), id), A is the type of the constant value cte *)
+  (* W(∆, cte) = (inst(A), id), A is the type of the constant value cte *)
   | E.Const( _ ) as cv -> ( inst delta cv, [] )
 
   (* W (∆, < N, L >) = (ρC(B) × C, ρC ◦ ρB),

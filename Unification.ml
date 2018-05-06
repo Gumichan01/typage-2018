@@ -163,7 +163,7 @@ let unify sys : unifier =
 
   and process l = List.map check ( l |> decompose |> swap |> eliminate |> erase )
 
-  and process_debug l =
+  (*and process_debug l =
     let dl = decompose l in
     let sl = swap dl in
     let el = eliminate sl in
@@ -173,7 +173,7 @@ let unify sys : unifier =
     print_endline ( "equation system swap" ); print_debug sl;
     print_endline ( "equation system eliminate " ); print_debug el;
     print_endline ( "equation system erase" ); print_debug eel;
-    List.map check eel
+    List.map check eel*)
 
   and erase l =
     let rec aux_erase sl res =
