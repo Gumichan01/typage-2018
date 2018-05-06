@@ -152,10 +152,10 @@ let to_unifier sys =
 
 (** The function that makes the unification *)
 
-let unify slist : unifier =
-  let rec unify_aux sys =
+let unify sys : unifier =
+  let rec unify_aux sys' =
     begin
-      let nsys = process sys in
+      let nsys = process sys' in
       if is_resolved nsys then
         to_unifier nsys
       else
@@ -211,13 +211,17 @@ let unify slist : unifier =
       | h :: q -> aux_swap q ( h :: res )
     in aux_swap l []
 
-  and decompose = function
-    | [] -> []    (* yes, it is possible *)
-    | ( Eq( T.Cross( u, w ), T.Cross( v, x ) ) ) :: q
-    | ( Eq( T.Arrow( u, w ), T.Arrow( v, x ) ) ) :: q ->
-      ( Eq( u, v ) ) :: ( Eq( w, x ) ) :: ( decompose q )
+  and decompose sys =
+    let rec decompose_aux sys' acc =
+      match sys' with
+      | [] -> acc
+      | ( Eq( T.Cross( u, w ), T.Cross( v, x ) ) ) :: q
+      | ( Eq( T.Arrow( u, w ), T.Arrow( v, x ) ) ) :: q ->
+        decompose_aux q ( ( Eq( u, v ) ) :: ( Eq( w, x ) ) :: acc )
 
-    | h::q -> h :: (decompose q)
+      | h::q -> decompose_aux q ( h :: acc )
+
+    in decompose_aux sys []
 
   (*
       Check if a substitution is not ill-formed
@@ -256,7 +260,7 @@ let unify slist : unifier =
     | Eq( T.Bool, T.Arrow( _, _ ) ) | Eq( T.Arrow( _, _ ), T.Bool ) -> true
     | _ -> false
 
-  in unify_aux ( to_eql slist )
+  in unify_aux ( to_eql sys )
 
 
 (*
